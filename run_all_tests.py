@@ -73,6 +73,10 @@ def run_all_tests(test_type="unit"):
             "Store Service",
             os.path.join(project_root, "src", "services", "store_service"),
         ),
+        (
+            "Price Service",
+            os.path.join(project_root, "src", "services", "price_service"),
+        ),
     ]
 
     total_exit_code = 0
