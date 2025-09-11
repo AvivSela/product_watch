@@ -46,6 +46,29 @@ services:
       start_period: 30s
     command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
 
+  price-service-test:
+    build:
+      context: .
+      dockerfile: src/services/price_service/Dockerfile
+    container_name: products_watch_price_service_test
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_TEST_USER:-postgres}:${POSTGRES_TEST_PASSWORD:-password}@postgres-test:5432/${POSTGRES_TEST_DB:-products_watch_test}
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8002/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
+
 volumes:
   postgres_test_data:
     driver: local
