@@ -64,7 +64,29 @@ services:
     networks:
       - products_watch_network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/stores" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  product_service:
+    build:
+      context: .
+      dockerfile: src/services/product_service/Dockerfile
+    container_name: products_watch_product_service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-products_watch}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - products_watch_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -15,6 +15,41 @@ app = FastAPI(
 )
 
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring service status"""
+    return {
+        "status": "healthy",
+        "service": "store-service",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.get("/health/db")
+def health_check_db(db: Session = Depends(get_db)):
+    """Health check endpoint that verifies database connectivity"""
+    try:
+        # Simple database query to verify connection
+        db.query(StoreSchema).limit(1).all()
+        return {
+            "status": "healthy",
+            "service": "store-service",
+            "database": "connected",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "status": "unhealthy",
+                "service": "store-service",
+                "database": "disconnected",
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+
 @app.get("/stores", response_model=PaginatedResponse)
 def get_stores(
     page: int = Query(1, ge=1, description="Page number"),
