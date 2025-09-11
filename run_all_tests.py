@@ -77,6 +77,10 @@ def run_all_tests(test_type="unit"):
             "Price Service",
             os.path.join(project_root, "src", "services", "price_service"),
         ),
+        (
+            "Retail File Service",
+            os.path.join(project_root, "src", "services", "retail_file_service"),
+        ),
     ]
 
     total_exit_code = 0
