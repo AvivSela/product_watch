@@ -362,7 +362,7 @@ class TestDatabasePerformanceIntegration:
 
         # Test decimal query performance
         start_time = time.time()
-        decimal_products = (
+        decimal_products = (  # noqa: F841
             integration_db_session.query(ProductSchema)
             .filter(ProductSchema.quantity > 2.0)
             .all()

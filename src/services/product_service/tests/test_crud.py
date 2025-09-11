@@ -180,7 +180,7 @@ class TestProductCRUD:
     ):
         """Test that updating to create duplicate constraint fails."""
         # Create two products
-        response1 = client.post("/products", json=sample_product_data)
+        response1 = client.post("/products", json=sample_product_data)  # noqa: F841
         response2 = client.post("/products", json=sample_product_data_2)
 
         product2_id = response2.json()["id"]
