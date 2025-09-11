@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 """
 Script to run integration tests with Docker Compose.
+
+Supports running integration tests for both store_service and product_service.
+Can run all tests or specific service tests.
+
+Usage:
+  python run_integration_tests.py                    # Run all integration tests
+  python run_integration_tests.py store              # Run store service tests only
+  python run_integration_tests.py product            # Run product service tests only
+  python run_integration_tests.py local               # Run all tests locally
+  python run_integration_tests.py local store         # Run store tests locally
+  python run_integration_tests.py local product      # Run product tests locally
 """
 
 import os
@@ -44,6 +55,9 @@ def cleanup_containers():
         run_command(
             ["docker", "rm", "-f", "products_watch_store_service_test"], check=False
         )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_product_service_test"], check=False
+        )
 
         print("✅ Cleanup completed")
     except Exception as e:
@@ -84,7 +98,26 @@ def wait_for_postgres():
     return False
 
 
-def run_integration_tests():
+def run_tests_for_paths(test_paths, project_root, env):
+    """Run pytest for given test paths."""
+    test_command = (
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+        ]
+        + test_paths
+        + [
+            "-v",
+            "--tb=short",
+            "--maxfail=5",
+        ]
+    )
+
+    return subprocess.run(test_command, cwd=project_root, env=env)
+
+
+def run_integration_tests(service=None):
     """Run integration tests with Docker Compose."""
     project_root = Path(__file__).parent.parent
 
@@ -126,17 +159,40 @@ def run_integration_tests():
 
         # Run integration tests
         print("🧪 Running integration tests...")
-        test_command = [
-            sys.executable,
-            "-m",
-            "pytest",
-            "src/services/store_service/tests/integration",
-            "-v",
-            "--tb=short",
-            "--maxfail=5",
-        ]
 
-        result = subprocess.run(test_command, cwd=project_root, env=env)
+        # Determine which tests to run
+        if service == "store":
+            test_paths = ["src/services/store_service/tests/integration"]
+            print("📦 Running store service integration tests only")
+            result = run_tests_for_paths(test_paths, project_root, env)
+        elif service == "product":
+            test_paths = ["src/services/product_service/tests/integration"]
+            print("📦 Running product service integration tests only")
+            result = run_tests_for_paths(test_paths, project_root, env)
+        else:
+            print("📦 Running all integration tests (store + product services)")
+            # Run store service tests first
+            print("🔄 Running store service tests...")
+            store_result = run_tests_for_paths(
+                ["src/services/store_service/tests/integration"], project_root, env
+            )
+
+            if store_result.returncode != 0:
+                print("❌ Store service tests failed")
+                return store_result.returncode
+
+            # Run product service tests
+            print("🔄 Running product service tests...")
+            product_result = run_tests_for_paths(
+                ["src/services/product_service/tests/integration"], project_root, env
+            )
+
+            if product_result.returncode != 0:
+                print("❌ Product service tests failed")
+                return product_result.returncode
+
+            print("✅ All integration tests passed!")
+            return 0
 
         if result.returncode == 0:
             print("✅ All integration tests passed!")
@@ -154,7 +210,7 @@ def run_integration_tests():
         cleanup_containers()
 
 
-def run_integration_tests_locally():
+def run_integration_tests_locally(service=None):
     """Run integration tests locally (without Docker Compose)."""
     project_root = Path(__file__).parent.parent
 
@@ -173,18 +229,39 @@ def run_integration_tests_locally():
         }
     )
 
-    # Run integration tests
-    test_command = [
-        sys.executable,
-        "-m",
-        "pytest",
-        "src/services/store_service/tests/integration",
-        "-v",
-        "--tb=short",
-        "--maxfail=5",
-    ]
+    # Determine which tests to run
+    if service == "store":
+        test_paths = ["src/services/store_service/tests/integration"]
+        print("📦 Running store service integration tests only")
+        result = run_tests_for_paths(test_paths, project_root, env)
+    elif service == "product":
+        test_paths = ["src/services/product_service/tests/integration"]
+        print("📦 Running product service integration tests only")
+        result = run_tests_for_paths(test_paths, project_root, env)
+    else:
+        print("📦 Running all integration tests (store + product services)")
+        # Run store service tests first
+        print("🔄 Running store service tests...")
+        store_result = run_tests_for_paths(
+            ["src/services/store_service/tests/integration"], project_root, env
+        )
 
-    result = subprocess.run(test_command, cwd=project_root, env=env)
+        if store_result.returncode != 0:
+            print("❌ Store service tests failed")
+            return store_result.returncode
+
+        # Run product service tests
+        print("🔄 Running product service tests...")
+        product_result = run_tests_for_paths(
+            ["src/services/product_service/tests/integration"], project_root, env
+        )
+
+        if product_result.returncode != 0:
+            print("❌ Product service tests failed")
+            return product_result.returncode
+
+        print("✅ All integration tests passed!")
+        return 0
 
     if result.returncode == 0:
         print("✅ All integration tests passed!")
@@ -196,8 +273,40 @@ def run_integration_tests_locally():
 
 def main():
     """Main function."""
-    if len(sys.argv) > 1 and sys.argv[1] == "local":
-        exit_code = run_integration_tests_locally()
+    service = None
+
+    # Parse command line arguments
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "local":
+            # Check for service parameter
+            if len(sys.argv) > 2:
+                service = sys.argv[2]
+            exit_code = run_integration_tests_locally(service)
+        elif sys.argv[1] in ["store", "product"]:
+            # Service specified without local
+            service = sys.argv[1]
+            exit_code = run_integration_tests(service)
+        else:
+            print("Usage:")
+            print(
+                "  python run_integration_tests.py                    # Run all integration tests"
+            )
+            print(
+                "  python run_integration_tests.py store              # Run store service tests only"
+            )
+            print(
+                "  python run_integration_tests.py product            # Run product service tests only"
+            )
+            print(
+                "  python run_integration_tests.py local               # Run all tests locally"
+            )
+            print(
+                "  python run_integration_tests.py local store         # Run store tests locally"
+            )
+            print(
+                "  python run_integration_tests.py local product      # Run product tests locally"
+            )
+            sys.exit(1)
     else:
         exit_code = run_integration_tests()
 

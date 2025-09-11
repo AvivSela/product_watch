@@ -183,7 +183,6 @@ class TestProductCRUD:
         response1 = client.post("/products", json=sample_product_data)
         response2 = client.post("/products", json=sample_product_data_2)
 
-        product1_id = response1.json()["id"]
         product2_id = response2.json()["id"]
 
         # Try to update product2 to have same chain_id, store_id, item_code as product1
