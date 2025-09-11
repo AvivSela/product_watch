@@ -48,6 +48,28 @@ services:
       retries: 5
       start_period: 30s
 
+  store_service:
+    build:
+      context: .
+      dockerfile: src/services/store_service/Dockerfile
+    container_name: products_watch_store_service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-products_watch}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - products_watch_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/stores" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   postgres_data:
     driver: local
