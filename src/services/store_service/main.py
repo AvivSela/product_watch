@@ -90,13 +90,19 @@ def get_store(store_id: UUID, db: Session = Depends(get_db)):
 @app.post("/stores", response_model=StoreModel, status_code=201)
 def create_store(store: StoreCreate, db: Session = Depends(get_db)):
     """Create a new store"""
-    # Check if store with same store_code already exists
+    # Check if store with same store_code and chain_id already exists
     existing_store = (
-        db.query(StoreSchema).filter(StoreSchema.store_code == store.store_code).first()
+        db.query(StoreSchema)
+        .filter(
+            StoreSchema.store_code == store.store_code,
+            StoreSchema.chain_id == store.chain_id,
+        )
+        .first()
     )
     if existing_store:
         raise HTTPException(
-            status_code=400, detail="Store with this store code already exists"
+            status_code=400,
+            detail="Store with this store code and chain already exists",
         )
 
     # Create new store
@@ -119,19 +125,31 @@ def update_store(
     if not store:
         raise HTTPException(status_code=404, detail="Store not found")
 
-    # Check if store_code is being updated and if it conflicts with existing stores
-    if store_update.store_code and store_update.store_code != store.store_code:
+    # Check if store_code or chain_id is being updated and if it conflicts with existing stores
+    if (store_update.store_code and store_update.store_code != store.store_code) or (
+        store_update.chain_id and store_update.chain_id != store.chain_id
+    ):
+        # Use the updated values or current values for the check
+        check_store_code = (
+            store_update.store_code if store_update.store_code else store.store_code
+        )
+        check_chain_id = (
+            store_update.chain_id if store_update.chain_id else store.chain_id
+        )
+
         existing_store = (
             db.query(StoreSchema)
             .filter(
-                StoreSchema.store_code == store_update.store_code,
+                StoreSchema.store_code == check_store_code,
+                StoreSchema.chain_id == check_chain_id,
                 StoreSchema.id != store_id,
             )
             .first()
         )
         if existing_store:
             raise HTTPException(
-                status_code=400, detail="Store with this store code already exists"
+                status_code=400,
+                detail="Store with this store code and chain already exists",
             )
 
     # Update fields

@@ -28,8 +28,7 @@ class Store(BaseEntity):
     sub_chain_id: str = Field(..., description="Sub-chain identifier")
     chain_id: str = Field(..., description="Parent chain identifier")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
     def from_db_model(cls, db_store: StoreSchema) -> "Store":

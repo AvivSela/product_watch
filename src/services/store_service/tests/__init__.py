@@ -1,0 +1,3 @@
+"""
+Store service tests package.
+"""

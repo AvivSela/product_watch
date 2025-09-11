@@ -12,8 +12,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
@@ -45,8 +44,10 @@ class StoreSchema(Base):
     zip_code = Column(String(20), nullable=False)
     sub_chain_id = Column(String(100), nullable=False)
     chain_id = Column(String(100), nullable=False)
-    created_at = Column(TIMESTAMP, default=func.now())
-    updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+    created_at = Column(TIMESTAMP, nullable=False, default=func.now())
+    updated_at = Column(
+        TIMESTAMP, nullable=False, default=func.now(), onupdate=func.now()
+    )
 
 
 # Dependency to get database session

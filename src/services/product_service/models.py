@@ -36,8 +36,7 @@ class Product(BaseEntity):
     quantity: Decimal = Field(..., gt=0, description="Product quantity")
     qty_in_package: Decimal = Field(..., gt=0, description="Quantity in package")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
     def from_db_model(cls, db_product: ProductSchema) -> "Product":
