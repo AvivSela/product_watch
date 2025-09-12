@@ -5,9 +5,12 @@ Tests real PostgreSQL database performance characteristics.
 
 import time
 
+import pytest
 from database import ProductSchema
 
 
+@pytest.mark.integration
+@pytest.mark.performance
 class TestDatabasePerformanceIntegration:
     """Performance integration tests for Product database operations."""
 

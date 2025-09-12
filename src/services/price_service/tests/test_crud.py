@@ -2,9 +2,11 @@
 CRUD unit tests for price service.
 """
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.unit
 class TestPriceCRUD:
     """Test class for Price CRUD operations."""
 

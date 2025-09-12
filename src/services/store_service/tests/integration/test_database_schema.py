@@ -3,9 +3,11 @@ Database schema integration tests for store service.
 Tests real PostgreSQL database schema and constraints.
 """
 
+import pytest
 from sqlalchemy import inspect, text
 
 
+@pytest.mark.integration
 class TestDatabaseSchemaIntegration:
     """Schema integration tests for Store database."""
 

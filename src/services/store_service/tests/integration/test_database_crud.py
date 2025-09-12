@@ -3,11 +3,13 @@ Database integration tests for store service CRUD operations.
 Tests real PostgreSQL database interactions.
 """
 
+import pytest
 from database import StoreSchema
 from fastapi import status
 from sqlalchemy import text
 
 
+@pytest.mark.integration
 class TestDatabaseCRUDIntegration:
     """Integration tests for Store CRUD operations with real PostgreSQL."""
 

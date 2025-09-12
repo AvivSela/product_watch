@@ -3,9 +3,11 @@ Database CRUD integration tests for price service.
 Tests real PostgreSQL database CRUD operations.
 """
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.integration
 class TestDatabaseCRUDIntegration:
     """Database CRUD integration tests for Price."""
 

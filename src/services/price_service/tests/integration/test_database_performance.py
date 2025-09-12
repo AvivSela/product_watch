@@ -6,9 +6,12 @@ Tests real PostgreSQL database performance and scalability.
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.integration
+@pytest.mark.performance
 class TestDatabasePerformanceIntegration:
     """Database performance integration tests for Price."""
 

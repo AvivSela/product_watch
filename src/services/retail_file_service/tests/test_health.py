@@ -2,9 +2,11 @@
 Health check tests for retail file service.
 """
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.unit
 class TestHealthChecks:
     """Test class for health check endpoints."""
 

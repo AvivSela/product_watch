@@ -17,19 +17,34 @@ def run_service_tests(service_name, service_dir, test_type="unit"):
     if test_type == "integration":
         test_dir = os.path.join(test_dir, "integration")
         print(f"\n🧪 Running {service_name} integration tests...")
+        # Run integration tests (including performance tests)
+        pytest_args = [
+            sys.executable,
+            "-m",
+            "pytest",
+            test_dir,
+            "-v",
+            "--tb=short",
+            "-m",
+            "integration",
+        ]
     else:
         print(f"\n🧪 Running {service_name} unit tests...")
+        # Run only unit tests (exclude integration and performance tests)
+        pytest_args = [
+            sys.executable,
+            "-m",
+            "pytest",
+            test_dir,
+            "-v",
+            "--tb=short",
+            "-m",
+            "unit",
+        ]
 
     try:
         result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pytest",
-                test_dir,
-                "-v",
-                "--tb=short",
-            ],
+            pytest_args,
             cwd=service_dir,
             check=True,
         )

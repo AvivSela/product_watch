@@ -2,9 +2,11 @@
 CRUD unit tests for store service.
 """
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.unit
 class TestStoreCRUD:
     """Test class for Store CRUD operations."""
 

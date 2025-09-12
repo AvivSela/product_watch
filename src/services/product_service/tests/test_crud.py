@@ -2,9 +2,11 @@
 CRUD unit tests for product service.
 """
 
+import pytest
 from fastapi import status
 
 
+@pytest.mark.unit
 class TestProductCRUD:
     """Test class for Product CRUD operations."""
 
