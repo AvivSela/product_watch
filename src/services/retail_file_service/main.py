@@ -168,18 +168,7 @@ async def create_retail_file(
         try:
             message = {
                 "event_type": "retail_file_created",
-                "retail_file_id": str(retail_file_model.id),
-                "chain_id": retail_file_model.chain_id,
-                "store_id": retail_file_model.store_id,
-                "file_name": retail_file_model.file_name,
-                "file_path": retail_file_model.file_path,
-                "file_size": retail_file_model.file_size,
-                "upload_date": retail_file_model.upload_date.isoformat(),
-                "is_processed": retail_file_model.is_processed,
-                "created_at": retail_file_model.created_at.isoformat()
-                if retail_file_model.created_at
-                else None,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "data": retail_file_model.model_dump(mode="json"),
             }
             await kafka_producer.send_message(
                 KAFKA_TOPIC_RETAIL_FILES, message, key=str(retail_file_model.id)

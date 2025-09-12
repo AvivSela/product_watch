@@ -97,6 +97,14 @@ docker rm -f products_watch_test_postgres
 - Test pagination performance
 - Test query performance with indexes
 
+### Kafka Integration Tests
+- Test Kafka message production when creating retail files
+- Verify message structure and content
+- Test error handling scenarios
+- Test JSON serialization compatibility
+- Test message size constraints
+- Test integration with multiple files
+
 ## Test Data
 
 Tests use sample data fixtures defined in `conftest.py`:
@@ -127,6 +135,10 @@ Tests cover:
 - ✅ Concurrent operations
 - ✅ Transaction handling
 - ✅ Connection management
+- ✅ Kafka message production
+- ✅ Kafka message structure and content
+- ✅ Kafka error handling
+- ✅ JSON serialization compatibility
 
 ## Database Schema
 

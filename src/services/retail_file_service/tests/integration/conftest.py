@@ -246,3 +246,26 @@ def database_transaction(db_session):
     except Exception:
         db_session.rollback()
         raise
+
+
+@pytest.fixture
+def mock_kafka_producer():
+    """Mock Kafka producer for testing."""
+    from unittest.mock import AsyncMock, MagicMock
+
+    mock_producer = MagicMock()
+    mock_producer.is_connected = True
+    mock_producer.send_message = AsyncMock(return_value=True)
+    mock_producer.connect = AsyncMock()
+    mock_producer.disconnect = AsyncMock()
+
+    return mock_producer
+
+
+@pytest.fixture
+def kafka_test_config():
+    """Kafka test configuration."""
+    return {
+        "bootstrap_servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
+        "topic": os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files"),
+    }
