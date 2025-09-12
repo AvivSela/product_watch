@@ -169,10 +169,9 @@ class TestRetailFileCRUD:
     ):
         """Test that updating to duplicate combination fails."""
         # Create two retail files
-        response1 = client.post("/retail-files", json=sample_retail_file_data)
+        _response1 = client.post("/retail-files", json=sample_retail_file_data)
         response2 = client.post("/retail-files", json=sample_retail_file_data_2)
 
-        data1 = response1.json()
         data2 = response2.json()
 
         # Try to update second retail file to have same chain_id, store_id, file_name as first
