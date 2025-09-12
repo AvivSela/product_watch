@@ -46,6 +46,29 @@ services:
       start_period: 30s
     command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
 
+  product-service-test:
+    build:
+      context: .
+      dockerfile: src/services/product_service/Dockerfile
+    container_name: products_watch_product_service_test
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_TEST_USER:-postgres}:${POSTGRES_TEST_PASSWORD:-password}@postgres-test:5432/${POSTGRES_TEST_DB:-products_watch_test}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
+
   price-service-test:
     build:
       context: .
@@ -63,6 +86,29 @@ services:
       - products_watch_test_network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8002/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
+
+  retail-file-service-test:
+    build:
+      context: .
+      dockerfile: src/services/retail_file_service/Dockerfile
+    container_name: products_watch_retail_file_service_test
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_TEST_USER:-postgres}:${POSTGRES_TEST_PASSWORD:-password}@postgres-test:5432/${POSTGRES_TEST_DB:-products_watch_test}
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8003/health" ]
       interval: 10s
       timeout: 5s
       retries: 5

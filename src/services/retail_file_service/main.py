@@ -1,3 +1,6 @@
+import os
+import sys
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -7,11 +10,49 @@ from models import PaginatedResponse, RetailFileCreate, RetailFileUpdate
 from models import RetailFile as RetailFileModel
 from sqlalchemy.orm import Session
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from src.utils.kafka_producer import KafkaProducer
+
+# Kafka configuration
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+KAFKA_TOPIC_RETAIL_FILES = os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")
+
+# Global Kafka producer instance
+kafka_producer: KafkaProducer = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage Kafka producer lifecycle"""
+    global kafka_producer
+    # Startup
+    try:
+        kafka_producer = KafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS)
+        await kafka_producer.connect()
+        print(f"Kafka producer connected to {KAFKA_BOOTSTRAP_SERVERS}")
+    except Exception as e:
+        print(f"Failed to connect Kafka producer: {e}")
+        kafka_producer = None
+
+    yield
+
+    # Shutdown
+    if kafka_producer:
+        try:
+            await kafka_producer.disconnect()
+            print("Kafka producer disconnected")
+        except Exception as e:
+            print(f"Error disconnecting Kafka producer: {e}")
+        finally:
+            kafka_producer = None
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Retail File Service API",
     description="A simple FastAPI Retail File Service for managing retail files",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -92,7 +133,9 @@ def get_retail_file(retail_file_id: UUID, db: Session = Depends(get_db)):
 
 
 @app.post("/retail-files", response_model=RetailFileModel, status_code=201)
-def create_retail_file(retail_file: RetailFileCreate, db: Session = Depends(get_db)):
+async def create_retail_file(
+    retail_file: RetailFileCreate, db: Session = Depends(get_db)
+):
     """Create a new retail file"""
     # Check if retail file with same chain_id, store_id, and file_name already exists
     existing_retail_file = (
@@ -117,7 +160,37 @@ def create_retail_file(retail_file: RetailFileCreate, db: Session = Depends(get_
     db.commit()
     db.refresh(db_retail_file)
 
-    return RetailFileModel.from_db_model(db_retail_file)
+    # Convert to response model
+    retail_file_model = RetailFileModel.from_db_model(db_retail_file)
+
+    # Produce Kafka message
+    if kafka_producer and kafka_producer.is_connected:
+        try:
+            message = {
+                "event_type": "retail_file_created",
+                "retail_file_id": str(retail_file_model.id),
+                "chain_id": retail_file_model.chain_id,
+                "store_id": retail_file_model.store_id,
+                "file_name": retail_file_model.file_name,
+                "file_path": retail_file_model.file_path,
+                "file_size": retail_file_model.file_size,
+                "upload_date": retail_file_model.upload_date.isoformat(),
+                "is_processed": retail_file_model.is_processed,
+                "created_at": retail_file_model.created_at.isoformat()
+                if retail_file_model.created_at
+                else None,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            await kafka_producer.send_message(
+                KAFKA_TOPIC_RETAIL_FILES, message, key=str(retail_file_model.id)
+            )
+        except Exception as e:
+            # Log the error but don't fail the request
+            print(f"Failed to send Kafka message: {e}")
+    else:
+        print("Kafka producer not available, skipping message production")
+
+    return retail_file_model
 
 
 @app.put("/retail-files/{retail_file_id}", response_model=RetailFileModel)

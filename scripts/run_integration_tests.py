@@ -2,16 +2,20 @@
 """
 Script to run integration tests with Docker Compose.
 
-Supports running integration tests for both store_service and product_service.
+Supports running integration tests for store_service, product_service, price_service, and retail_file_service.
 Can run all tests or specific service tests.
 
 Usage:
   python run_integration_tests.py                    # Run all integration tests
   python run_integration_tests.py store              # Run store service tests only
   python run_integration_tests.py product            # Run product service tests only
+  python run_integration_tests.py price              # Run price service tests only
+  python run_integration_tests.py retail             # Run retail file service tests only
   python run_integration_tests.py local               # Run all tests locally
   python run_integration_tests.py local store         # Run store tests locally
   python run_integration_tests.py local product      # Run product tests locally
+  python run_integration_tests.py local price         # Run price tests locally
+  python run_integration_tests.py local retail        # Run retail tests locally
 """
 
 import os
@@ -57,6 +61,13 @@ def cleanup_containers():
         )
         run_command(
             ["docker", "rm", "-f", "products_watch_product_service_test"], check=False
+        )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_price_service_test"], check=False
+        )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_retail_file_service_test"],
+            check=False,
         )
 
         print("✅ Cleanup completed")
@@ -169,8 +180,18 @@ def run_integration_tests(service=None):
             test_paths = ["src/services/product_service/tests/integration"]
             print("📦 Running product service integration tests only")
             result = run_tests_for_paths(test_paths, project_root, env)
+        elif service == "price":
+            test_paths = ["src/services/price_service/tests/integration"]
+            print("📦 Running price service integration tests only")
+            result = run_tests_for_paths(test_paths, project_root, env)
+        elif service == "retail":
+            test_paths = ["src/services/retail_file_service/tests/integration"]
+            print("📦 Running retail file service integration tests only")
+            result = run_tests_for_paths(test_paths, project_root, env)
         else:
-            print("📦 Running all integration tests (store + product services)")
+            print(
+                "📦 Running all integration tests (store + product + price + retail services)"
+            )
             # Run store service tests first
             print("🔄 Running store service tests...")
             store_result = run_tests_for_paths(
@@ -190,6 +211,28 @@ def run_integration_tests(service=None):
             if product_result.returncode != 0:
                 print("❌ Product service tests failed")
                 return product_result.returncode
+
+            # Run price service tests
+            print("🔄 Running price service tests...")
+            price_result = run_tests_for_paths(
+                ["src/services/price_service/tests/integration"], project_root, env
+            )
+
+            if price_result.returncode != 0:
+                print("❌ Price service tests failed")
+                return price_result.returncode
+
+            # Run retail file service tests
+            print("🔄 Running retail file service tests...")
+            retail_result = run_tests_for_paths(
+                ["src/services/retail_file_service/tests/integration"],
+                project_root,
+                env,
+            )
+
+            if retail_result.returncode != 0:
+                print("❌ Retail file service tests failed")
+                return retail_result.returncode
 
             print("✅ All integration tests passed!")
             return 0
@@ -238,8 +281,18 @@ def run_integration_tests_locally(service=None):
         test_paths = ["src/services/product_service/tests/integration"]
         print("📦 Running product service integration tests only")
         result = run_tests_for_paths(test_paths, project_root, env)
+    elif service == "price":
+        test_paths = ["src/services/price_service/tests/integration"]
+        print("📦 Running price service integration tests only")
+        result = run_tests_for_paths(test_paths, project_root, env)
+    elif service == "retail":
+        test_paths = ["src/services/retail_file_service/tests/integration"]
+        print("📦 Running retail file service integration tests only")
+        result = run_tests_for_paths(test_paths, project_root, env)
     else:
-        print("📦 Running all integration tests (store + product services)")
+        print(
+            "📦 Running all integration tests (store + product + price + retail services)"
+        )
         # Run store service tests first
         print("🔄 Running store service tests...")
         store_result = run_tests_for_paths(
@@ -259,6 +312,26 @@ def run_integration_tests_locally(service=None):
         if product_result.returncode != 0:
             print("❌ Product service tests failed")
             return product_result.returncode
+
+        # Run price service tests
+        print("🔄 Running price service tests...")
+        price_result = run_tests_for_paths(
+            ["src/services/price_service/tests/integration"], project_root, env
+        )
+
+        if price_result.returncode != 0:
+            print("❌ Price service tests failed")
+            return price_result.returncode
+
+        # Run retail file service tests
+        print("🔄 Running retail file service tests...")
+        retail_result = run_tests_for_paths(
+            ["src/services/retail_file_service/tests/integration"], project_root, env
+        )
+
+        if retail_result.returncode != 0:
+            print("❌ Retail file service tests failed")
+            return retail_result.returncode
 
         print("✅ All integration tests passed!")
         return 0
@@ -282,7 +355,7 @@ def main():
             if len(sys.argv) > 2:
                 service = sys.argv[2]
             exit_code = run_integration_tests_locally(service)
-        elif sys.argv[1] in ["store", "product"]:
+        elif sys.argv[1] in ["store", "product", "price", "retail"]:
             # Service specified without local
             service = sys.argv[1]
             exit_code = run_integration_tests(service)
@@ -298,6 +371,12 @@ def main():
                 "  python run_integration_tests.py product            # Run product service tests only"
             )
             print(
+                "  python run_integration_tests.py price              # Run price service tests only"
+            )
+            print(
+                "  python run_integration_tests.py retail             # Run retail file service tests only"
+            )
+            print(
                 "  python run_integration_tests.py local               # Run all tests locally"
             )
             print(
@@ -305,6 +384,12 @@ def main():
             )
             print(
                 "  python run_integration_tests.py local product      # Run product tests locally"
+            )
+            print(
+                "  python run_integration_tests.py local price         # Run price tests locally"
+            )
+            print(
+                "  python run_integration_tests.py local retail        # Run retail tests locally"
             )
             sys.exit(1)
     else:
