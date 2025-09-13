@@ -26,14 +26,30 @@ kafka_producer: KafkaProducer = None
 async def lifespan(app: FastAPI):
     """Manage Kafka producer lifecycle"""
     global kafka_producer
-    # Startup
-    try:
-        kafka_producer = KafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS)
-        await kafka_producer.connect()
-        print(f"Kafka producer connected to {KAFKA_BOOTSTRAP_SERVERS}")
-    except Exception as e:
-        print(f"Failed to connect Kafka producer: {e}")
+
+    # Skip Kafka connection in test environment
+    if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+        print("Skipping Kafka connection in test environment")
         kafka_producer = None
+    else:
+        # Startup
+        try:
+            import asyncio
+
+            kafka_producer = KafkaProducer(
+                bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+                request_timeout_ms=5000,  # 5 second timeout
+                max_block_ms=5000,  # 5 second max block time
+            )
+            # Add timeout to connection attempt
+            await asyncio.wait_for(kafka_producer.connect(), timeout=5.0)
+            print(f"Kafka producer connected to {KAFKA_BOOTSTRAP_SERVERS}")
+        except asyncio.TimeoutError:
+            print("Kafka connection timeout - continuing without Kafka")
+            kafka_producer = None
+        except Exception as e:
+            print(f"Failed to connect Kafka producer: {e}")
+            kafka_producer = None
 
     yield
 

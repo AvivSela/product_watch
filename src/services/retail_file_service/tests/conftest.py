@@ -6,6 +6,7 @@ import os
 
 # Import the main app and database components
 import sys
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -55,11 +56,32 @@ def db_session():
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
-    """Create a test client with database override."""
+def mock_kafka_producer():
+    """Mock Kafka producer to avoid external dependencies in tests."""
+    mock_producer = AsyncMock()
+    mock_producer.connect = AsyncMock()
+    mock_producer.disconnect = AsyncMock()
+    mock_producer.send_message = AsyncMock(return_value=True)
+    mock_producer.is_connected = True
+    return mock_producer
+
+
+@pytest.fixture(scope="function")
+def client(db_session, mock_kafka_producer):
+    """Create a test client with database override and mocked Kafka."""
     app.dependency_overrides[get_db] = lambda: db_session
+
+    # Mock the global kafka_producer
+    import main
+
+    original_kafka_producer = getattr(main, "kafka_producer", None)
+    main.kafka_producer = mock_kafka_producer
+
     with TestClient(app) as test_client:
         yield test_client
+
+    # Restore original kafka_producer
+    main.kafka_producer = original_kafka_producer
     app.dependency_overrides.clear()
 
 
