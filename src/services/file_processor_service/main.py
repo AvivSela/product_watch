@@ -1,32 +1,172 @@
+import asyncio
+import logging
+import os
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from typing import Any, Dict
 
+from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
+from pydantic import BaseModel
 
-# Initialize FastAPI app
+from src.utils.kafka_consumer import KafkaConsumer
+
+
+# Simple message model for file processing
+class RetailFileMessage(BaseModel):
+    """Simple message model for retail file processing"""
+
+    event_type: str
+    data: Dict[str, Any]
+
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Global variable to store the Kafka consumer
+kafka_consumer: KafkaConsumer = None
+
+
+async def message_handler(record: ConsumerRecord) -> None:
+    """
+    Handle incoming Kafka messages.
+
+    Args:
+        record: ConsumerRecord object containing the message data
+    """
+    try:
+        # Parse the message
+
+        message_data = kafka_consumer.parse_message(record)
+        if message_data.get("value"):
+            await process_file_message(RetailFileMessage(message_data["value"]))
+
+    except Exception as e:
+        logger.error(f"Error processing message: {e}")
+
+
+async def process_file_message(message_data: RetailFileMessage) -> None:
+    """
+    Process file-related messages from Kafka.
+
+    Args:
+        message_data: Parsed message data
+    """
+    try:
+        # Example file processing logic
+
+        logger.info(f"Processing message: {message_data.dump_json()}")
+
+    except Exception as e:
+        logger.error(f"Error in file processing: {e}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI app.
+    Handles startup and shutdown events for the Kafka consumer.
+    """
+    global kafka_consumer
+
+    # Startup
+    logger.info("Starting File Processor Service...")
+
+    try:
+        # Initialize Kafka consumer
+
+        kafka_topics = [os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")]
+        kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+        kafka_group_id = os.getenv("KAFKA_GROUP_ID", "file-processor-group")
+
+        kafka_consumer = KafkaConsumer(
+            topics=kafka_topics,
+            bootstrap_servers=kafka_servers,
+            group_id=kafka_group_id,
+            client_id="file-processor-service",
+        )
+
+        # Connect to Kafka
+        await kafka_consumer.connect()
+        logger.info(f"Connected to Kafka broker at {kafka_servers}")
+        logger.info(f"Subscribed to topics: {kafka_topics}")
+
+        # Start consuming messages in the background
+        consumer_task = asyncio.create_task(
+            kafka_consumer.start_consuming(message_handler, poll_interval=1.0)
+        )
+
+        logger.info("File Processor Service started successfully")
+
+    except Exception as e:
+        logger.error(f"Failed to start Kafka consumer: {e}")
+        raise
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down File Processor Service...")
+
+    try:
+        if kafka_consumer:
+            # Stop consuming messages
+            kafka_consumer.stop_consuming()
+
+            # Wait for consumer task to finish
+            if "consumer_task" in locals():
+                consumer_task.cancel()
+                try:
+                    await consumer_task
+                except asyncio.CancelledError:
+                    pass
+
+            # Disconnect from Kafka
+            await kafka_consumer.disconnect()
+
+        logger.info("File Processor Service shutdown complete")
+
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
+
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title="File Processor Service API",
-    description="A simple FastAPI File Processor Service for processing files",
+    description="A FastAPI File Processor Service with Kafka consumer for processing files",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
 @app.get("/health")
 def health_check():
     """Health check endpoint for monitoring service status"""
+    kafka_status = (
+        "connected"
+        if kafka_consumer and kafka_consumer.is_connected
+        else "disconnected"
+    )
+
     return {
         "status": "healthy",
         "service": "file-processor-service",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "kafka_status": kafka_status,
     }
 
 
 @app.get("/health/ready")
 def health_check_ready():
     """Readiness check endpoint for Kubernetes/container orchestration"""
+    kafka_ready = kafka_consumer and kafka_consumer.is_connected
+    status = "ready" if kafka_ready else "not_ready"
+
     return {
-        "status": "ready",
+        "status": status,
         "service": "file-processor-service",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "kafka_connected": bool(kafka_ready),
     }
 
 

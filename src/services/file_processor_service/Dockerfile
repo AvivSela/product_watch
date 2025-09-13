@@ -8,9 +8,18 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy the main requirements file first
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the file processor service requirements
+COPY src/services/file_processor_service/requirements.txt ./service_requirements.txt
+
+# Install Python dependencies from both requirements files
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r service_requirements.txt
+
+# Copy the entire source code structure
+COPY src/ ./src/
 
 # Copy the file processor service source code
 COPY src/services/file_processor_service/ .
