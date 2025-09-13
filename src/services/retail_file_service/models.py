@@ -123,3 +123,8 @@ class PaginatedResponse(BaseModel):
     page: int
     size: int
     pages: int
+
+
+class RetailFileMessage(BaseModel):
+    event_type: str
+    data: RetailFile

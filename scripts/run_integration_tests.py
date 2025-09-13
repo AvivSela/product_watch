@@ -122,6 +122,8 @@ def run_tests_for_paths(test_paths, project_root, env):
             "-v",
             "--tb=short",
             "--maxfail=5",
+            "-m",
+            "integration",
         ]
     )
 
