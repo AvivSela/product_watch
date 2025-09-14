@@ -7,6 +7,7 @@ import os
 import subprocess
 
 # Import the main app and database components
+import sys
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -17,8 +18,21 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from services.retail_file_service.database import Base, get_db
-from services.retail_file_service.main import app
+# Set testing environment variable to enable fallback imports
+os.environ["TESTING"] = "true"
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# Add shared directory to path
+sys.path.insert(
+    0,
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "..", ".."
+    ),
+)
+
+from database import Base, get_db
+from main import app
 
 
 class PostgreSQLTestManager:

@@ -1,10 +1,17 @@
 # Standard library imports
+# Local application imports
+# Use relative imports by default, fallback to absolute imports only in test environments
+import os
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-# Local application imports
-from database import RetailFileSchema
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    # Test environment - use absolute imports
+    from database import RetailFileSchema
+else:
+    # Production environment - use relative imports
+    from .database import RetailFileSchema
 
 # Third-party imports
 from pydantic import BaseModel, ConfigDict, Field

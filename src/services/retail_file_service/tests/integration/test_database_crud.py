@@ -3,10 +3,17 @@ Database integration tests for retail file service CRUD operations.
 Tests real PostgreSQL database interactions.
 """
 
+import os
+
+# Import database model
+import sys
+
 import pytest
-from database import RetailFileSchema
 from fastapi import status
 from sqlalchemy import text
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from database import RetailFileSchema
 
 
 @pytest.mark.integration

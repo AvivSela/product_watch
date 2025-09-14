@@ -12,13 +12,14 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the retail file service source code
-COPY src/services/retail_file_service/ .
-# Copy the shared utils directory for kafka_producer
-COPY src/shared/ ./shared/
+# Copy the entire src directory to maintain package structure
+COPY src/ ./src/
+
+# Set PYTHONPATH to include the src directory
+ENV PYTHONPATH=/app/src
 
 # Expose port 8003
 EXPOSE 8003
 
-# Run the FastAPI application
-CMD ["python", "main.py"]
+# Run the FastAPI application as a module
+CMD ["python", "-m", "services.retail_file_service.main"]

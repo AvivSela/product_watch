@@ -1,18 +1,12 @@
 # Third-party imports
 import pytest
-from fastapi.testclient import TestClient
-
-# Local application imports
-from services.file_processor_service.main import app
-
-client = TestClient(app)
 
 
 @pytest.mark.unit
 class TestHealthEndpoints:
     """Test health check endpoints"""
 
-    def test_health_check(self):
+    def test_health_check(self, client):
         """Test basic health check endpoint"""
         response = client.get("/health")
         assert response.status_code == 200
@@ -25,7 +19,7 @@ class TestHealthEndpoints:
         # Kafka status should be "disconnected" during tests since we don't have a real Kafka broker
         assert data["kafka_status"] == "disconnected"
 
-    def test_health_check_ready(self):
+    def test_health_check_ready(self, client):
         """Test readiness check endpoint"""
         response = client.get("/health/ready")
         assert response.status_code == 200
@@ -39,7 +33,7 @@ class TestHealthEndpoints:
         assert "kafka_connected" in data
         assert data["kafka_connected"] is False
 
-    def test_health_check_live(self):
+    def test_health_check_live(self, client):
         """Test liveness check endpoint"""
         response = client.get("/health/live")
         assert response.status_code == 200
