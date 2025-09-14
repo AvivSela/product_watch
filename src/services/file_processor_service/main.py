@@ -10,10 +10,12 @@ from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from utils.kafka_producer import KafkaProducer
+
 # Add the src directory to Python path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from file_processor import process_xml_file
+from file_processor import ExtractedPriceProductItem, process_xml_file
 from s3_client import S3Client
 
 from src.utils.kafka_consumer import KafkaConsumer
@@ -50,6 +52,14 @@ logger = logging.getLogger(__name__)
 
 # Global variable to store the Kafka consumer
 kafka_consumer: KafkaConsumer = None
+# Global variable to store the Kafka producer
+kafka_producer: KafkaProducer = None
+
+# Kafka configuration
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+KAFKA_TOPIC_PROCESSED_FILES = os.getenv(
+    "KAFKA_TOPIC_PROCESSED_FILES", "processed_files"
+)
 
 
 async def message_handler(record: ConsumerRecord) -> None:
@@ -84,11 +94,19 @@ async def process_file_message(message_data: RetailFileMessage) -> None:
 
         retail_file = message_data.to_retail_file_model()
 
-        process_xml_file(
+        items: List[ExtractedPriceProductItem] = process_xml_file(
             retail_file.file_path,
             retail_file.id,
             S3Client(default_bucket_name="price-files", auto_create_bucket=True),
         )
+
+        for item in items:
+            kafka_producer.send_message(
+                KAFKA_TOPIC_PROCESSED_FILES,
+                item.model_dump_json(),
+                key=item.item_code,
+            )
+            logger.debug(f"Item: {item.model_dump_json()}")
 
     except Exception as e:
         logger.error(f"Error in file processing: {e}")
@@ -117,6 +135,12 @@ async def lifespan(app: FastAPI):
             bootstrap_servers=kafka_servers,
             group_id=kafka_group_id,
             client_id="file-processor-service",
+        )
+
+        kafka_producer = KafkaProducer(
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            request_timeout_ms=5000,  # 5 second timeout
+            max_block_ms=5000,  # 5 second max block time,
         )
 
         # Connect to Kafka

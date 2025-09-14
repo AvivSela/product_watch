@@ -20,7 +20,7 @@ def simple_filter_items(item: "ExtractedPriceProductItem") -> bool:
     """Filter items to only include those with price < 5 and updated within last 3 days."""
 
     # Date filter: only include items updated within last 3 days
-    three_days_ago = datetime.now() - timedelta(days=3)
+    three_days_ago = datetime.now() - timedelta(days=7)
     date_ok = item.price_update_date >= three_days_ago
 
     return date_ok
