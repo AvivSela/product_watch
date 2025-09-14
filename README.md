@@ -17,7 +17,7 @@ This project includes a Docker Compose setup with PostgreSQL database and pgAdmi
 2. **Initialize the database:**
    ```bash
    # Option 1: Using centralized script (recommended)
-   python init_database.py
+   python scripts/init_database.py
 
    # Option 2: Initialize individual services
    python src/services/store_service/database.py
@@ -71,7 +71,7 @@ The project includes a centralized database initialization script that creates a
 ### Usage:
 ```bash
 # Initialize all database tables
-python init_database.py
+python scripts/init_database.py
 ```
 
 ### Environment Variables:
@@ -83,7 +83,7 @@ python init_database.py
 - **View logs:** `docker-compose logs -f`
 - **Restart services:** `docker-compose restart`
 - **Remove volumes (WARNING: deletes all data):** `docker-compose down -v`
-- **Reinitialize database:** `python init_database.py`
+- **Reinitialize database:** `python scripts/init_database.py`
 
 ## Data Persistence
 

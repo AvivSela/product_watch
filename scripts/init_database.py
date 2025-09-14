@@ -16,13 +16,13 @@ import sys
 from pathlib import Path
 
 # Add src directory to Python path for imports
-src_path = Path(__file__).parent / "src"
+src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from dotenv import load_dotenv
 from sqlalchemy import inspect, text
 
-from services.price_service.database import Base as PriceBase
+from services.price_service.database import Base as PriceBase  # noqa: E402
 from services.price_service.database import PriceSchema
 from services.price_service.database import engine as price_engine
 from services.product_service.database import Base as ProductBase
