@@ -33,7 +33,7 @@ class S3Client:
 
     def __init__(
         self,
-        endpoint_url: str = "http://localhost:9000",
+        endpoint_url: Optional[str] = None,
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
         default_bucket_name: str = "default",
@@ -49,9 +49,12 @@ class S3Client:
             bucket_name: Default bucket to use
             auto_create_bucket: Whether to create bucket if it doesn't exist
         """
-        self.endpoint_url = endpoint_url
-        self.access_key = access_key or os.getenv("S3_ACCESS_KEY", "minioadmin")
-        self.secret_key = secret_key or os.getenv("S3_SECRET_KEY", "minioadmin")
+        # Use environment variables if not provided
+        self.endpoint_url = endpoint_url or os.getenv(
+            "MINIO_ENDPOINT", "http://localhost:9000"
+        )
+        self.access_key = access_key or os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+        self.secret_key = secret_key or os.getenv("MINIO_SECRET_KEY", "minioadmin")
         self.default_bucket_name = default_bucket_name
         self.auto_create_bucket = auto_create_bucket
 
@@ -67,13 +70,16 @@ class S3Client:
         """Initialize MinIO client."""
 
         try:
+            # Determine if connection should be secure
+            secure = os.getenv("MINIO_SECURE", "false").lower() == "true"
+
             self._minio_client = Minio(
                 endpoint=self.endpoint_url.replace("http://", "").replace(
                     "https://", ""
                 ),
                 access_key=self.access_key,
                 secret_key=self.secret_key,
-                secure=False,
+                secure=secure,
             )
             logger.info(f"Initialized MinIO client for {self.endpoint_url}")
         except Exception as e:
@@ -137,8 +143,13 @@ class S3Client:
         Returns:
             Object data as bytes
         """
-
-        bucket_name, object_key = self.__url_into_bucket_and_object_key(url)
+        # If it's a full URL, parse it
+        if url.startswith(("http://", "https://", "s3://")):
+            bucket_name, object_key = self.__url_into_bucket_and_object_key(url)
+        else:
+            # If it's just a path, use the default bucket
+            bucket_name = self.default_bucket_name
+            object_key = url
 
         try:
             response = self._minio_client.get_object(bucket_name, object_key)
@@ -153,7 +164,23 @@ class S3Client:
             raise S3ClientError(f"Failed to get object: {e}")
 
     def url_exists(self, url: str) -> bool:
-        bucket_name, object_key = self.__url_into_bucket_and_object_key(url)
+        """
+        Check if a file exists in S3.
+
+        Args:
+            url: Either a full S3 URL or just the object key/path
+
+        Returns:
+            True if the file exists
+        """
+        # If it's a full URL, parse it
+        if url.startswith(("http://", "https://", "s3://")):
+            bucket_name, object_key = self.__url_into_bucket_and_object_key(url)
+        else:
+            # If it's just a path, use the default bucket
+            bucket_name = self.default_bucket_name
+            object_key = url
+
         return self.object_exists(bucket_name, object_key)
 
     def object_exists(self, bucket_name, object_key) -> bool:
