@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
-from main import app
+
+from src.services.file_processor_service.main import app
 
 client = TestClient(app)
 
@@ -26,7 +27,9 @@ class TestHealthEndpoints:
         assert response.status_code == 200
 
         data = response.json()
-        assert data["status"] == "not_ready"  # Should be "not_ready" when Kafka is disconnected
+        assert (
+            data["status"] == "not_ready"
+        )  # Should be "not_ready" when Kafka is disconnected
         assert data["service"] == "file-processor-service"
         assert "timestamp" in data
         assert "kafka_connected" in data

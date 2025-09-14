@@ -100,10 +100,14 @@ services:
     restart: "no"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_TEST_USER:-postgres}:${POSTGRES_TEST_PASSWORD:-password}@postgres-test:5432/${POSTGRES_TEST_DB:-products_watch_test}
+      KAFKA_BOOTSTRAP_SERVERS: kafka-test:9092
+      KAFKA_TOPIC_RETAIL_FILES: retail_files
     ports:
       - "8003:8003"
     depends_on:
       postgres-test:
+        condition: service_healthy
+      kafka-test:
         condition: service_healthy
     networks:
       - products_watch_test_network
@@ -115,8 +119,106 @@ services:
       start_period: 30s
     command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
 
+  file-processor-service-test:
+    build:
+      context: .
+      dockerfile: src/services/file_processor_service/Dockerfile
+    container_name: products_watch_file_processor_service_test
+    restart: "no"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-test:9092
+      KAFKA_TOPIC_RETAIL_FILES: retail_files
+      KAFKA_TOPIC_PROCESSED_FILES: processed_files
+      MINIO_ENDPOINT: http://minio-test:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "8004:8004"
+    depends_on:
+      kafka-test:
+        condition: service_healthy
+      minio-test:
+        condition: service_healthy
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8004/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: [ "python", "-m", "pytest", "tests/integration", "-v" ]
+
+  kafka-test:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: products_watch_kafka_test
+    restart: "no"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-test:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-test:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    depends_on:
+      zookeeper-test:
+        condition: service_healthy
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  zookeeper-test:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: products_watch_zookeeper_test
+    restart: "no"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - products_watch_test_network
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  minio-test:
+    image: minio/minio:latest
+    container_name: products_watch_minio_test
+    restart: "no"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_test_data:/data
+    networks:
+      - products_watch_test_network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
 volumes:
   postgres_test_data:
+    driver: local
+  minio_test_data:
     driver: local
 
 networks:

@@ -7,14 +7,15 @@ from typing import Any, Dict, List, Optional
 
 from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
-from file_processor import ExtractedPriceProductItem, process_xml_file
 from pydantic import BaseModel
-from s3_client import S3Client
 
 from src.utils.kafka_consumer import KafkaConsumer
 
 # Clean, simple imports that work everywhere!
 from src.utils.kafka_producer import KafkaProducer
+
+from .file_processor import ExtractedPriceProductItem, process_xml_file
+from .s3_client import S3Client
 
 
 # Local RetailFile model for file processor service

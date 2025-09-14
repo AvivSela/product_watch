@@ -69,6 +69,22 @@ def cleanup_containers():
             ["docker", "rm", "-f", "products_watch_retail_file_service_test"],
             check=False,
         )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_file_processor_service_test"],
+            check=False,
+        )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_kafka_test"],
+            check=False,
+        )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_zookeeper_test"],
+            check=False,
+        )
+        run_command(
+            ["docker", "rm", "-f", "products_watch_minio_test"],
+            check=False,
+        )
 
         print("✅ Cleanup completed")
     except Exception as e:
@@ -335,6 +351,7 @@ def run_integration_tests_locally(service=None):
             print("❌ Retail file service tests failed")
             return retail_result.returncode
 
+        # Run file processor service tests
         print("✅ All integration tests passed!")
         return 0
 

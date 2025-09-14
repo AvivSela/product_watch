@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 from typing import Callable, List
 
 from pydantic import BaseModel, Field
-from s3_client import S3Client
+
+from .s3_client import S3Client
 
 logger = logging.getLogger(__name__)
 

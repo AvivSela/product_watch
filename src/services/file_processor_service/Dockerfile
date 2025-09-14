@@ -1,3 +1,4 @@
+# Use Python 3.11 slim image
 FROM python:3.11-slim
 
 # Set working directory
@@ -8,21 +9,23 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the entire project first
-COPY . /app
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install the project as an editable package
-RUN pip install -e .
+# Copy source code
+COPY src/ ./src/
+COPY scripts/ ./scripts/
 
-# Copy service-specific requirements and install them
-COPY src/services/file_processor_service/requirements.txt ./service_requirements.txt
-RUN pip install --no-cache-dir -r service_requirements.txt
+# Set Python path
+ENV PYTHONPATH=/app
 
-# Copy service files to working directory
-COPY src/services/file_processor_service/ .
-
-# Expose port 8004
+# Expose port
 EXPOSE 8004
 
-# Run the FastAPI application
-CMD ["python", "main.py"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8004/health || exit 1
+
+# Default command
+CMD ["python", "-m", "uvicorn", "src.services.file_processor_service.main:app", "--host", "0.0.0.0", "--port", "8004"]
