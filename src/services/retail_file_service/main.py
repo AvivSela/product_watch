@@ -6,9 +6,13 @@ from uuid import UUID
 
 from database import RetailFileSchema, get_db
 from fastapi import Depends, FastAPI, HTTPException, Query
-from models import PaginatedResponse
+from models import (
+    PaginatedResponse,
+    RetailFileCreate,
+    RetailFileMessage,
+    RetailFileUpdate,
+)
 from models import RetailFile as RetailFileModel
-from models import RetailFileCreate, RetailFileMessage, RetailFileUpdate
 from sqlalchemy.orm import Session
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -281,7 +285,9 @@ async def produce_Kafka_message(
     """Produce a Kafka message"""
     if kafka_producer and kafka_producer.is_connected:
         try:
-            message = RetailFileMessage("retail_file_created", retail_file_model)
+            message = RetailFileMessage(
+                event_type="retail_file_created", data=retail_file_model
+            )
 
             await kafka_producer.send_message(
                 KAFKA_TOPIC_RETAIL_FILES,

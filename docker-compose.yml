@@ -195,15 +195,41 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-products_watch}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC_RETAIL_FILES: retail_files
     ports:
       - "8003:8003"
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
     networks:
       - products_watch_network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8003/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  minio:
+    image: minio/minio:latest
+    container_name: products_watch_minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - products_watch_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -218,10 +244,16 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_TOPICS: file-processing,retail-files
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+      MINIO_SECURE: "false"
     ports:
       - "8004:8004"
     depends_on:
       kafka:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     networks:
       - products_watch_network
@@ -242,6 +274,8 @@ volumes:
   zookeeper_logs:
     driver: local
   kafka_data:
+    driver: local
+  minio_data:
     driver: local
 
 networks:

@@ -1,15 +1,36 @@
 import asyncio
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+# Add the src directory to Python path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+from file_processor import process_xml_file
+from s3_client import S3Client
+
 from src.utils.kafka_consumer import KafkaConsumer
+
+
+# Local RetailFile model for file processor service
+class RetailFile(BaseModel):
+    """Retail file model for file processor service"""
+
+    id: str
+    chain_id: str
+    store_id: Optional[int] = None
+    file_name: str
+    file_path: str
+    file_size: Optional[int] = None
+    upload_date: datetime
+    is_processed: bool = False
 
 
 # Simple message model for file processing
@@ -18,6 +39,9 @@ class RetailFileMessage(BaseModel):
 
     event_type: str
     data: Dict[str, Any]
+
+    def to_retail_file_model(self) -> RetailFile:
+        return RetailFile(**self.data)
 
 
 # Configure logging
@@ -40,7 +64,7 @@ async def message_handler(record: ConsumerRecord) -> None:
 
         message_data = kafka_consumer.parse_message(record)
         if message_data.get("value"):
-            await process_file_message(RetailFileMessage(message_data["value"]))
+            await process_file_message(RetailFileMessage(**message_data["value"]))
 
     except Exception as e:
         logger.error(f"Error processing message: {e}")
@@ -56,7 +80,15 @@ async def process_file_message(message_data: RetailFileMessage) -> None:
     try:
         # Example file processing logic
 
-        logger.info(f"Processing message: {message_data.dump_json()}")
+        logger.info(f"Processing message: {message_data.model_dump_json()}")
+
+        retail_file = message_data.to_retail_file_model()
+
+        process_xml_file(
+            retail_file.file_path,
+            retail_file.id,
+            S3Client(default_bucket_name="price-files", auto_create_bucket=True),
+        )
 
     except Exception as e:
         logger.error(f"Error in file processing: {e}")
