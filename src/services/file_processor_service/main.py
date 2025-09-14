@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
 
         kafka_topics = [os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")]
         kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-        kafka_group_id = os.getenv("KAFKA_GROUP_ID", "file-processor-group")
+        kafka_group_id = "file-processor-group"
 
         kafka_consumer = KafkaConsumer(
             topics=kafka_topics,

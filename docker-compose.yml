@@ -218,7 +218,6 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_TOPICS: file-processing,retail-files
-      KAFKA_GROUP_ID: file-processor-group
     ports:
       - "8004:8004"
     depends_on:
