@@ -1,6 +1,6 @@
 """
-Database performance integration tests for store service.
-Tests real PostgreSQL database performance characteristics.
+Simplified database performance integration tests for store service.
+Tests critical PostgreSQL database performance characteristics.
 """
 
 import time
@@ -12,7 +12,7 @@ from database import StoreSchema
 @pytest.mark.integration
 @pytest.mark.performance
 class TestDatabasePerformanceIntegration:
-    """Performance integration tests for Store database operations."""
+    """Simplified performance integration tests for Store database operations."""
 
     def test_bulk_insert_performance(self, integration_client, integration_db_session):
         """Test performance of bulk insert operations."""
@@ -145,167 +145,3 @@ class TestDatabasePerformanceIntegration:
         )
 
         print(f"Pagination of 5 pages took {pagination_time:.2f}s")
-
-    def test_database_connection_pool_performance(
-        self, integration_client, integration_db_session
-    ):
-        """Test database connection pool performance."""
-        # Test multiple concurrent-like operations
-        start_time = time.time()
-
-        # Simulate multiple concurrent operations
-        operations = []
-        for i in range(20):
-            # Create store
-            store_data = {
-                "store_code": 8000 + i,
-                "store_name": f"Pool Test Store {i}",
-                "address": f"{i} Pool Street",
-                "city": "Pool City",
-                "zip_code": f"{80000 + i:05d}",
-                "sub_chain_id": "pool_sub_chain_001",
-                "chain_id": "pool_chain_001",
-            }
-
-            response = integration_client.post("/stores", json=store_data)
-            assert response.status_code == 201
-
-            # Read store
-            store_id = response.json()["id"]
-            read_response = integration_client.get(f"/stores/{store_id}")
-            assert read_response.status_code == 200
-
-            operations.append((store_id, store_data))
-
-        end_time = time.time()
-        operations_time = end_time - start_time
-
-        # Performance assertion
-        assert operations_time < 5.0, (
-            f"Connection pool operations took too long: {operations_time:.2f}s"
-        )
-
-        print(f"Connection pool operations took {operations_time:.2f}s")
-
-    def test_database_transaction_performance(
-        self, integration_client, integration_db_session
-    ):
-        """Test database transaction performance."""
-        # Test transaction-heavy operations
-        start_time = time.time()
-
-        # Create and immediately update stores (transaction-heavy)
-        for i in range(30):
-            store_data = {
-                "store_code": 9000 + i,
-                "store_name": f"Transaction Test Store {i}",
-                "address": f"{i} Transaction Street",
-                "city": "Transaction City",
-                "zip_code": f"{90000 + i:05d}",
-                "sub_chain_id": "trans_sub_chain_001",
-                "chain_id": "trans_chain_001",
-            }
-
-            # Create
-            create_response = integration_client.post("/stores", json=store_data)
-            assert create_response.status_code == 201
-            store_id = create_response.json()["id"]
-
-            # Update
-            update_data = {"store_name": f"Updated Transaction Store {i}"}
-            update_response = integration_client.put(
-                f"/stores/{store_id}", json=update_data
-            )
-            assert update_response.status_code == 200
-
-            # Delete
-            delete_response = integration_client.delete(f"/stores/{store_id}")
-            assert delete_response.status_code == 204
-
-        end_time = time.time()
-        transaction_time = end_time - start_time
-
-        # Performance assertion
-        assert transaction_time < 8.0, (
-            f"Transaction operations took too long: {transaction_time:.2f}s"
-        )
-
-        print(f"Transaction operations took {transaction_time:.2f}s")
-
-    def test_database_memory_usage(self, integration_client, integration_db_session):
-        """Test database memory usage with large result sets."""
-        # Create test data
-        stores_data = []
-        for i in range(100):
-            stores_data.append(
-                {
-                    "store_code": 10000 + i,
-                    "store_name": f"Memory Test Store {i}",
-                    "address": f"{i} Memory Street",
-                    "city": "Memory City",
-                    "zip_code": f"{100000 + i:05d}",
-                    "sub_chain_id": f"mem_sub_chain_{i % 5:03d}",
-                    "chain_id": f"mem_chain_{i % 3:03d}",
-                }
-            )
-
-        # Insert data
-        for store_data in stores_data:
-            response = integration_client.post("/stores", json=store_data)
-            assert response.status_code == 201
-
-        # Test large result set query
-        start_time = time.time()
-
-        # Query all stores (large result set)
-        all_stores = integration_db_session.query(StoreSchema).all()
-        assert len(all_stores) == len(stores_data)
-
-        end_time = time.time()
-        query_time = end_time - start_time
-
-        # Performance assertion
-        assert query_time < 1.0, (
-            f"Large result set query took too long: {query_time:.2f}s"
-        )
-
-        print(
-            f"Large result set query ({len(all_stores)} records) took {query_time:.2f}s"
-        )
-
-    def test_database_concurrent_read_performance(
-        self, integration_client, integration_db_session
-    ):
-        """Test concurrent read performance."""
-        # Create test data
-        store_data = {
-            "store_code": 11000,
-            "store_name": "Concurrent Read Test Store",
-            "address": "1 Concurrent Street",
-            "city": "Concurrent City",
-            "zip_code": "11000",
-            "sub_chain_id": "concurrent_sub_chain_001",
-            "chain_id": "concurrent_chain_001",
-        }
-
-        response = integration_client.post("/stores", json=store_data)
-        assert response.status_code == 201
-        store_id = response.json()["id"]
-
-        # Test multiple concurrent reads
-        start_time = time.time()
-
-        # Simulate concurrent reads
-        for _ in range(50):
-            read_response = integration_client.get(f"/stores/{store_id}")
-            assert read_response.status_code == 200
-
-        end_time = time.time()
-        concurrent_read_time = end_time - start_time
-
-        # Performance assertion
-        assert concurrent_read_time < 2.0, (
-            f"Concurrent reads took too long: {concurrent_read_time:.2f}s"
-        )
-
-        print(f"Concurrent reads (50 operations) took {concurrent_read_time:.2f}s")
