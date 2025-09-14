@@ -237,13 +237,14 @@ services:
 
   file_processor_service:
     build:
-      context: .
+      context: . # Build from project root, not service directory
       dockerfile: src/services/file_processor_service/Dockerfile
     container_name: products_watch_file_processor_service
     restart: unless-stopped
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      KAFKA_TOPICS: file-processing,retail-files
+      KAFKA_TOPIC_RETAIL_FILES: retail_files
+      KAFKA_TOPIC_PROCESSED_FILES: processed_files
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}

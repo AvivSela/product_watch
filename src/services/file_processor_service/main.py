@@ -1,24 +1,20 @@
 import asyncio
 import logging
 import os
-import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
-from pydantic import BaseModel
-
-from utils.kafka_producer import KafkaProducer
-
-# Add the src directory to Python path for imports
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-
 from file_processor import ExtractedPriceProductItem, process_xml_file
+from pydantic import BaseModel
 from s3_client import S3Client
 
 from src.utils.kafka_consumer import KafkaConsumer
+
+# Clean, simple imports that work everywhere!
+from src.utils.kafka_producer import KafkaProducer
 
 
 # Local RetailFile model for file processor service
@@ -101,12 +97,15 @@ async def process_file_message(message_data: RetailFileMessage) -> None:
         )
 
         for item in items:
-            kafka_producer.send_message(
-                KAFKA_TOPIC_PROCESSED_FILES,
-                item.model_dump_json(),
-                key=item.item_code,
-            )
-            logger.debug(f"Item: {item.model_dump_json()}")
+            try:
+                await kafka_producer.send_message(
+                    KAFKA_TOPIC_PROCESSED_FILES,
+                    item.model_dump_json(),
+                    key=item.item_code,
+                )
+                logger.debug(f"Sent item to Kafka: {item.item_code}")
+            except Exception as e:
+                logger.error(f"Failed to send item {item.item_code} to Kafka: {e}")
 
     except Exception as e:
         logger.error(f"Error in file processing: {e}")
@@ -125,6 +124,7 @@ async def lifespan(app: FastAPI):
 
     try:
         # Initialize Kafka consumer
+        logger.info("Initializing Kafka consumer...")
 
         kafka_topics = [os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")]
         kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
@@ -136,15 +136,21 @@ async def lifespan(app: FastAPI):
             group_id=kafka_group_id,
             client_id="file-processor-service",
         )
+        logger.info("Kafka consumer initialized successfully")
 
+        global kafka_producer
+        logger.info("Initializing Kafka producer...")
         kafka_producer = KafkaProducer(
             bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
             request_timeout_ms=5000,  # 5 second timeout
             max_block_ms=5000,  # 5 second max block time,
         )
+        logger.info("Kafka producer initialized, connecting...")
 
         # Connect to Kafka
         await kafka_consumer.connect()
+        await kafka_producer.connect()
+        logger.info("Kafka producer connected successfully")
         logger.info(f"Connected to Kafka broker at {kafka_servers}")
         logger.info(f"Subscribed to topics: {kafka_topics}")
 
@@ -179,6 +185,9 @@ async def lifespan(app: FastAPI):
 
             # Disconnect from Kafka
             await kafka_consumer.disconnect()
+
+        if kafka_producer:
+            await kafka_producer.disconnect()
 
         logger.info("File Processor Service shutdown complete")
 

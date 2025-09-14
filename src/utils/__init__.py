@@ -1,15 +1,11 @@
 """
-Utils package for products_watch application.
+Utility modules for the Products Watch System.
 
-This package contains utility modules for common functionality across services.
+This package contains shared utilities for Kafka communication,
+database operations, and other common functionality.
 """
 
-from .kafka_consumer import KafkaConsumer, consume_kafka_messages
-from .kafka_producer import KafkaProducer, send_kafka_message
+from .kafka_consumer import KafkaConsumer
+from .kafka_producer import KafkaProducer
 
-__all__ = [
-    "KafkaProducer",
-    "KafkaConsumer",
-    "send_kafka_message",
-    "consume_kafka_messages",
-]
+__all__ = ["KafkaProducer", "KafkaConsumer"]
