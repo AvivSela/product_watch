@@ -13,16 +13,13 @@ from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-# Local imports
-from services.file_processor_service.file_processor import (
-    ExtractedPriceProductItem,
-    process_xml_file,
-)
-from services.file_processor_service.s3_client import S3Client
-
 # Shared imports
-from shared.utils.kafka_consumer import KafkaConsumer
-from shared.utils.kafka_producer import KafkaProducer
+from ...shared.utils.kafka_consumer import KafkaConsumer
+from ...shared.utils.kafka_producer import KafkaProducer
+
+# Local imports
+from .file_processor import ExtractedPriceProductItem, process_xml_file
+from .s3_client import S3Client
 
 
 # Local RetailFile model for file processor service
