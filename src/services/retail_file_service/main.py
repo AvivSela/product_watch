@@ -1,11 +1,17 @@
+# Standard library imports
 import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID
 
-from database import RetailFileSchema, get_db
+# Third-party imports
 from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlalchemy.orm import Session
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+# Local application imports
+from database import RetailFileSchema, get_db
 from models import (
     PaginatedResponse,
     RetailFileCreate,
@@ -13,10 +19,8 @@ from models import (
     RetailFileUpdate,
 )
 from models import RetailFile as RetailFileModel
-from sqlalchemy.orm import Session
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from src.utils.kafka_producer import KafkaProducer
+from shared.utils.kafka_producer import KafkaProducer
 
 # Kafka configuration
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")

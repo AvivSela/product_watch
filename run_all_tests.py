@@ -4,6 +4,7 @@ Script to run all service tests from project root.
 Supports both unit tests and integration tests.
 """
 
+# Standard library imports
 import argparse
 import os
 import subprocess
@@ -43,9 +44,14 @@ def run_service_tests(service_name, service_dir, test_type="unit"):
         ]
 
     try:
+        # Run tests from project root to ensure proper package imports
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.path.join(project_root, "src")
         result = subprocess.run(
             pytest_args,
-            cwd=service_dir,
+            cwd=project_root,
+            env=env,
             check=True,
         )
         print(f"✅ All {service_name} {test_type} tests passed!")
@@ -95,6 +101,15 @@ def run_all_tests(test_type="unit"):
         (
             "Retail File Service",
             os.path.join(project_root, "src", "services", "retail_file_service"),
+        ),
+        (
+            "File Processor Service",
+            os.path.join(
+                project_root,
+                "src",
+                "services",
+                "file_processor_service",
+            ),
         ),
     ]
 

@@ -1,7 +1,11 @@
+# Standard library imports
 from datetime import datetime, timezone
 from uuid import UUID
 
+# Local application imports
 from database import ProductSchema, get_db
+
+# Third-party imports
 from fastapi import Depends, FastAPI, HTTPException, Query
 from models import PaginatedResponse, ProductCreate, ProductUpdate
 from models import Product as ProductModel

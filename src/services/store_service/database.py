@@ -1,6 +1,8 @@
-import os
+# Standard library imports
 import uuid
+from os import getenv
 
+# Third-party imports
 from dotenv import load_dotenv
 from sqlalchemy import (
     TIMESTAMP,
@@ -17,7 +19,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 # Database configuration
-DATABASE_URL = os.getenv(
+DATABASE_URL = getenv(
     "DATABASE_URL", "postgresql://postgres:password@localhost:5432/products_watch"
 )
 

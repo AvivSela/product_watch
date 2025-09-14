@@ -3,16 +3,12 @@ Unit tests for file_processor_service that can run without infrastructure.
 """
 
 # Add the project root to the Python path
-import os
-import sys
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-
-from src.services.file_processor_service.file_processor import (
+from services.file_processor_service.file_processor import (
     ExtractedPriceProductItem,
     process_xml_file,
 )
@@ -323,7 +319,7 @@ class TestFileProcessorUnitTests:
         processed_messages = []
         for item in items:
             processed_message = {
-                "topic": "processed_files",
+                "topic": "retail-product-updates",
                 "key": item.item_code,
                 "value": item.model_dump(),
             }

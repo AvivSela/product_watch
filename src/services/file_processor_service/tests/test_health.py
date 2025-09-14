@@ -1,10 +1,14 @@
+# Third-party imports
+import pytest
 from fastapi.testclient import TestClient
 
-from src.services.file_processor_service.main import app
+# Local application imports
+from services.file_processor_service.main import app
 
 client = TestClient(app)
 
 
+@pytest.mark.unit
 class TestHealthEndpoints:
     """Test health check endpoints"""
 

@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the retail file service source code
 COPY src/services/retail_file_service/ .
-# Copy the utils directory for kafka_producer
-COPY src/utils/ ./src/utils/
+# Copy the shared utils directory for kafka_producer
+COPY src/shared/ ./shared/
 
 # Expose port 8003
 EXPOSE 8003

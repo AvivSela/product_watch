@@ -4,12 +4,15 @@ Example usage of Kafka Producer and Consumer utilities.
 This script demonstrates how to use the Kafka utilities for sending and receiving messages.
 """
 
+# Standard library imports
 import asyncio
 import json
 import logging
 
+# Third-party imports
 from aiokafka.structs import ConsumerRecord
 
+# Local application imports
 from .kafka_consumer import KafkaConsumer
 from .kafka_producer import KafkaProducer
 

@@ -5,10 +5,13 @@ These tests verify that the Kafka utilities can be imported and instantiated cor
 Note: These are basic unit tests that don't require a running Kafka broker.
 """
 
+# Standard library imports
 from unittest.mock import MagicMock
 
+# Third-party imports
 import pytest
 
+# Local application imports
 from .kafka_consumer import KafkaConsumer, consume_kafka_messages
 from .kafka_producer import KafkaProducer, send_kafka_message
 

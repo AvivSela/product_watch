@@ -7,12 +7,14 @@ For local development, start MinIO using:
 docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"
 """
 
+# Standard library imports
 import logging
-import os
 from io import BytesIO
+from os import getenv
 from typing import Optional, Union
 from urllib.parse import urlparse
 
+# Third-party imports
 from minio import Minio
 
 logger = logging.getLogger(__name__)
@@ -50,11 +52,11 @@ class S3Client:
             auto_create_bucket: Whether to create bucket if it doesn't exist
         """
         # Use environment variables if not provided
-        self.endpoint_url = endpoint_url or os.getenv(
+        self.endpoint_url = endpoint_url or getenv(
             "MINIO_ENDPOINT", "http://localhost:9000"
         )
-        self.access_key = access_key or os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-        self.secret_key = secret_key or os.getenv("MINIO_SECRET_KEY", "minioadmin")
+        self.access_key = access_key or getenv("MINIO_ACCESS_KEY", "minioadmin")
+        self.secret_key = secret_key or getenv("MINIO_SECRET_KEY", "minioadmin")
         self.default_bucket_name = default_bucket_name
         self.auto_create_bucket = auto_create_bucket
 
@@ -71,7 +73,7 @@ class S3Client:
 
         try:
             # Determine if connection should be secure
-            secure = os.getenv("MINIO_SECURE", "false").lower() == "true"
+            secure = getenv("MINIO_SECURE", "false").lower() == "true"
 
             self._minio_client = Minio(
                 endpoint=self.endpoint_url.replace("http://", "").replace(

@@ -1,8 +1,12 @@
+# Standard library imports
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
+# Local application imports
 from database import StoreSchema
+
+# Third-party imports
 from pydantic import BaseModel, ConfigDict, Field
 
 

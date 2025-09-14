@@ -35,7 +35,7 @@ This directory contains utility classes for working with Apache Kafka in the pro
 ### Producer Example
 
 ```python
-from src.utils import KafkaProducer
+from shared.utils import KafkaProducer
 
 # Using context manager (recommended)
 async with KafkaProducer(bootstrap_servers="localhost:9092") as producer:
@@ -51,7 +51,7 @@ await producer.disconnect()
 ### Consumer Example
 
 ```python
-from src.utils import KafkaConsumer
+from shared.utils import KafkaConsumer
 
 def message_handler(record):
     print(f"Received: {record.value.decode('utf-8')}")
@@ -64,7 +64,7 @@ async with KafkaConsumer(topics="my_topic", group_id="my_group") as consumer:
 ### Convenience Functions
 
 ```python
-from src.utils import send_kafka_message, consume_kafka_messages
+from shared.utils import send_kafka_message, consume_kafka_messages
 
 # Send a single message
 await send_kafka_message("my_topic", {"data": "example"})
@@ -104,7 +104,7 @@ Both producer and consumer support extensive configuration options:
 Run the unit tests:
 
 ```bash
-python -m pytest src/utils/test_kafka_utils.py -v
+python -m pytest src/shared/utils/test_kafka_utils.py -v
 ```
 
 ## Example Usage

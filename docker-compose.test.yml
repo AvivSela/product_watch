@@ -128,7 +128,7 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka-test:9092
       KAFKA_TOPIC_RETAIL_FILES: retail_files
-      KAFKA_TOPIC_PROCESSED_FILES: processed_files
+      KAFKA_TOPIC_PROCESSED_FILES: retail-product-updates
       MINIO_ENDPOINT: http://minio-test:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin

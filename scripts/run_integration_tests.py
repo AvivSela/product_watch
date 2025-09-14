@@ -127,6 +127,9 @@ def wait_for_postgres():
 
 def run_tests_for_paths(test_paths, project_root, env):
     """Run pytest for given test paths."""
+    # Ensure PYTHONPATH is set correctly
+    env["PYTHONPATH"] = os.path.join(project_root, "src")
+
     test_command = (
         [
             sys.executable,
@@ -213,7 +216,9 @@ def run_integration_tests(service=None):
             # Run store service tests first
             print("🔄 Running store service tests...")
             store_result = run_tests_for_paths(
-                ["src/services/store_service/tests/integration"], project_root, env
+                ["src/services/store_service/tests/integration"],
+                project_root,
+                env,
             )
 
             if store_result.returncode != 0:
@@ -223,7 +228,9 @@ def run_integration_tests(service=None):
             # Run product service tests
             print("🔄 Running product service tests...")
             product_result = run_tests_for_paths(
-                ["src/services/product_service/tests/integration"], project_root, env
+                ["src/services/product_service/tests/integration"],
+                project_root,
+                env,
             )
 
             if product_result.returncode != 0:
@@ -233,7 +240,9 @@ def run_integration_tests(service=None):
             # Run price service tests
             print("🔄 Running price service tests...")
             price_result = run_tests_for_paths(
-                ["src/services/price_service/tests/integration"], project_root, env
+                ["src/services/price_service/tests/integration"],
+                project_root,
+                env,
             )
 
             if price_result.returncode != 0:
@@ -314,7 +323,9 @@ def run_integration_tests_locally(service=None):
         # Run store service tests first
         print("🔄 Running store service tests...")
         store_result = run_tests_for_paths(
-            ["src/services/store_service/tests/integration"], project_root, env
+            ["src/services/store_service/tests/integration"],
+            project_root,
+            env,
         )
 
         if store_result.returncode != 0:
@@ -324,7 +335,9 @@ def run_integration_tests_locally(service=None):
         # Run product service tests
         print("🔄 Running product service tests...")
         product_result = run_tests_for_paths(
-            ["src/services/product_service/tests/integration"], project_root, env
+            ["src/services/product_service/tests/integration"],
+            project_root,
+            env,
         )
 
         if product_result.returncode != 0:
@@ -334,7 +347,9 @@ def run_integration_tests_locally(service=None):
         # Run price service tests
         print("🔄 Running price service tests...")
         price_result = run_tests_for_paths(
-            ["src/services/price_service/tests/integration"], project_root, env
+            ["src/services/price_service/tests/integration"],
+            project_root,
+            env,
         )
 
         if price_result.returncode != 0:
@@ -344,7 +359,9 @@ def run_integration_tests_locally(service=None):
         # Run retail file service tests
         print("🔄 Running retail file service tests...")
         retail_result = run_tests_for_paths(
-            ["src/services/retail_file_service/tests/integration"], project_root, env
+            ["src/services/retail_file_service/tests/integration"],
+            project_root,
+            env,
         )
 
         if retail_result.returncode != 0:

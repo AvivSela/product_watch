@@ -305,7 +305,7 @@ class TestDatabaseSchemaIntegration:
     def test_database_migration_compatibility(self, integration_db_session):
         """Test that database schema is compatible with SQLAlchemy models."""
         # Test that we can create a StoreSchema instance and it maps correctly
-        from models import StoreCreate
+        from services.store_service.models import StoreCreate
 
         store_data = StoreCreate(
             store_code=9999,

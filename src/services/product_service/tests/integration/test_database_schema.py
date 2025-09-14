@@ -319,7 +319,7 @@ class TestDatabaseSchemaIntegration:
     def test_database_migration_compatibility(self, integration_db_session):
         """Test that database schema is compatible with SQLAlchemy models."""
         # Test that we can create a ProductCreate instance and it maps correctly
-        from models import ProductCreate
+        from services.product_service.models import ProductCreate
 
         product_data = ProductCreate(
             chain_id="schema_test_chain",

@@ -6,7 +6,8 @@ setup(
     description="Products Watch System - Microservices for retail file processing",
     author="Your Name",
     author_email="your.email@example.com",
-    packages=find_packages(),
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     install_requires=[
         "fastapi>=0.100.0",
         "uvicorn[standard]>=0.20.0",

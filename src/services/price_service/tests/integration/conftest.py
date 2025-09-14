@@ -7,22 +7,16 @@ import os
 import subprocess
 
 # Import the main app and database components
-import sys
 import time
 from contextlib import contextmanager
 
 import pytest
+from database import Base, get_db
 from fastapi.testclient import TestClient
+from main import app
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
-
-from database import Base, get_db
-from main import app
 
 
 class PostgreSQLTestManager:

@@ -5,11 +5,13 @@ This module provides a utility class for consuming messages from Kafka topics.
 It uses aiokafka for async operations and includes error handling and message processing.
 """
 
+# Standard library imports
 import asyncio
 import json
 import logging
 from typing import Any, Callable, Dict, List, Optional, Union
 
+# Third-party imports
 from aiokafka import AIOKafkaConsumer
 from aiokafka.errors import KafkaError
 from aiokafka.structs import ConsumerRecord

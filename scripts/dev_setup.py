@@ -3,6 +3,7 @@
 Development setup script for Products Watch System.
 """
 
+# Standard library imports
 import subprocess
 import sys
 

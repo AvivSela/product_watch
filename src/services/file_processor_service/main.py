@@ -1,21 +1,26 @@
+# Standard library imports
 import asyncio
 import logging
 import os
+
+# Local application imports
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from os import getenv
 from typing import Any, Dict, List, Optional
 
+# Third-party imports
 from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from src.utils.kafka_consumer import KafkaConsumer
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+from file_processor import ExtractedPriceProductItem, process_xml_file
+from s3_client import S3Client
 
-# Clean, simple imports that work everywhere!
-from src.utils.kafka_producer import KafkaProducer
-
-from .file_processor import ExtractedPriceProductItem, process_xml_file
-from .s3_client import S3Client
+from shared.utils.kafka_consumer import KafkaConsumer
+from shared.utils.kafka_producer import KafkaProducer
 
 
 # Local RetailFile model for file processor service
@@ -53,9 +58,9 @@ kafka_consumer: KafkaConsumer = None
 kafka_producer: KafkaProducer = None
 
 # Kafka configuration
-KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-KAFKA_TOPIC_PROCESSED_FILES = os.getenv(
-    "KAFKA_TOPIC_PROCESSED_FILES", "processed_files"
+KAFKA_BOOTSTRAP_SERVERS = getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+KAFKA_TOPIC_PROCESSED_FILES = getenv(
+    "KAFKA_TOPIC_PROCESSED_FILES", "retail-product-updates"
 )
 
 
@@ -127,8 +132,8 @@ async def lifespan(app: FastAPI):
         # Initialize Kafka consumer
         logger.info("Initializing Kafka consumer...")
 
-        kafka_topics = [os.getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")]
-        kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+        kafka_topics = [getenv("KAFKA_TOPIC_RETAIL_FILES", "retail_files")]
+        kafka_servers = getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
         kafka_group_id = "file-processor-group"
 
         kafka_consumer = KafkaConsumer(

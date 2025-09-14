@@ -2,6 +2,7 @@
 File processing logic for retail-file-processor.
 """
 
+# Standard library imports
 import gzip
 import io
 import logging
@@ -10,9 +11,11 @@ import zipfile
 from datetime import datetime, timedelta
 from typing import Callable, List
 
+# Third-party imports
 from pydantic import BaseModel, Field
 
-from .s3_client import S3Client
+# Local application imports
+from s3_client import S3Client
 
 logger = logging.getLogger(__name__)
 

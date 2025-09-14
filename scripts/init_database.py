@@ -12,6 +12,7 @@ Environment Variables:
     DATABASE_URL: PostgreSQL connection string (default: postgresql://postgres:password@localhost:5432/products_watch)
 """
 
+# Standard library imports
 import sys
 from pathlib import Path
 
@@ -19,23 +20,25 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from dotenv import load_dotenv
-from sqlalchemy import inspect, text
+# Third-party imports
+from dotenv import load_dotenv  # noqa: E402
+from sqlalchemy import inspect, text  # noqa: E402
 
+# Local application imports
 from services.price_service.database import Base as PriceBase  # noqa: E402
-from services.price_service.database import PriceSchema
-from services.price_service.database import engine as price_engine
-from services.product_service.database import Base as ProductBase
-from services.product_service.database import ProductSchema
-from services.product_service.database import engine as product_engine
-from services.retail_file_service.database import Base as RetailFileBase
-from services.retail_file_service.database import RetailFileSchema
-from services.retail_file_service.database import engine as retail_file_engine
-
-# Import all service models and engines
-from services.store_service.database import Base as StoreBase
-from services.store_service.database import StoreSchema
-from services.store_service.database import engine as store_engine
+from services.price_service.database import PriceSchema  # noqa: E402
+from services.price_service.database import engine as price_engine  # noqa: E402
+from services.product_service.database import Base as ProductBase  # noqa: E402
+from services.product_service.database import ProductSchema  # noqa: E402
+from services.product_service.database import engine as product_engine  # noqa: E402
+from services.retail_file_service.database import Base as RetailFileBase  # noqa: E402
+from services.retail_file_service.database import RetailFileSchema  # noqa: E402
+from services.retail_file_service.database import (
+    engine as retail_file_engine,  # noqa: E402
+)
+from services.store_service.database import Base as StoreBase  # noqa: E402
+from services.store_service.database import StoreSchema  # noqa: E402
+from services.store_service.database import engine as store_engine  # noqa: E402
 
 # Load environment variables
 load_dotenv()

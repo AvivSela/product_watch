@@ -5,10 +5,12 @@ This module provides a utility class for producing messages to Kafka topics.
 It uses aiokafka for async operations and includes error handling and retry logic.
 """
 
+# Standard library imports
 import json
 import logging
 from typing import Any, Dict, Optional, Union
 
+# Third-party imports
 from aiokafka import AIOKafkaProducer
 from aiokafka.errors import KafkaError
 

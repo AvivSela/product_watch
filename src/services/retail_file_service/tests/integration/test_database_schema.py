@@ -329,7 +329,7 @@ class TestDatabaseSchemaIntegration:
     def test_database_migration_compatibility(self, integration_db_session):
         """Test that database schema is compatible with SQLAlchemy models."""
         # Test that we can create a RetailFileCreate instance and it maps correctly
-        from models import RetailFileCreate
+        from services.retail_file_service.models import RetailFileCreate
 
         retail_file_data = RetailFileCreate(
             chain_id="schema_chain_001",
