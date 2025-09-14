@@ -14,7 +14,19 @@ This project includes a Docker Compose setup with PostgreSQL database and pgAdmi
    docker-compose up -d
    ```
 
-2. **Access pgAdmin:**
+2. **Initialize the database:**
+   ```bash
+   # Option 1: Using centralized script (recommended)
+   python init_database.py
+
+   # Option 2: Initialize individual services
+   python src/services/store_service/database.py
+   python src/services/product_service/database.py
+   python src/services/price_service/database.py
+   python src/services/retail_file_service/database.py
+   ```
+
+3. **Access pgAdmin:**
    - Open your browser and go to `http://localhost:8080`
    - Login with the credentials from `docker.env`:
      - Email: `admin@example.com`
@@ -45,12 +57,33 @@ From your application, connect to PostgreSQL using:
 - Username: `postgres`
 - Password: `password`
 
+## Database Initialization
+
+The project includes a centralized database initialization script that creates all tables for all microservices:
+
+### Features:
+- ✅ **Centralized**: One script initializes all services
+- ✅ **Connection Testing**: Verifies database connectivity before creating tables
+- ✅ **Error Handling**: Provides clear error messages and status updates
+- ✅ **Table Detection**: Shows which tables were created vs. already existing
+- ✅ **Service Summary**: Lists all tables created for each service
+
+### Usage:
+```bash
+# Initialize all database tables
+python init_database.py
+```
+
+### Environment Variables:
+- `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://postgres:password@localhost:5432/products_watch`)
+
 ## Management Commands
 
 - **Stop services:** `docker-compose down`
 - **View logs:** `docker-compose logs -f`
 - **Restart services:** `docker-compose restart`
 - **Remove volumes (WARNING: deletes all data):** `docker-compose down -v`
+- **Reinitialize database:** `python init_database.py`
 
 ## Data Persistence
 
