@@ -1,10 +1,8 @@
 # Standard library imports
 import asyncio
 import logging
-import os
 
 # Local application imports
-import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from os import getenv
@@ -15,10 +13,14 @@ from aiokafka.structs import ConsumerRecord
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-from file_processor import ExtractedPriceProductItem, process_xml_file
-from s3_client import S3Client
+# Local imports
+from services.file_processor_service.file_processor import (
+    ExtractedPriceProductItem,
+    process_xml_file,
+)
+from services.file_processor_service.s3_client import S3Client
 
+# Shared imports
 from shared.utils.kafka_consumer import KafkaConsumer
 from shared.utils.kafka_producer import KafkaProducer
 

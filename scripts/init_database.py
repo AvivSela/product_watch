@@ -14,31 +14,24 @@ Environment Variables:
 
 # Standard library imports
 import sys
-from pathlib import Path
-
-# Add src directory to Python path for imports
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path))
 
 # Third-party imports
-from dotenv import load_dotenv  # noqa: E402
-from sqlalchemy import inspect, text  # noqa: E402
+from dotenv import load_dotenv
+from sqlalchemy import inspect, text
 
 # Local application imports
-from services.price_service.database import Base as PriceBase  # noqa: E402
-from services.price_service.database import PriceSchema  # noqa: E402
-from services.price_service.database import engine as price_engine  # noqa: E402
-from services.product_service.database import Base as ProductBase  # noqa: E402
-from services.product_service.database import ProductSchema  # noqa: E402
-from services.product_service.database import engine as product_engine  # noqa: E402
-from services.retail_file_service.database import Base as RetailFileBase  # noqa: E402
-from services.retail_file_service.database import RetailFileSchema  # noqa: E402
-from services.retail_file_service.database import (
-    engine as retail_file_engine,  # noqa: E402
-)
-from services.store_service.database import Base as StoreBase  # noqa: E402
-from services.store_service.database import StoreSchema  # noqa: E402
-from services.store_service.database import engine as store_engine  # noqa: E402
+from services.price_service.database import Base as PriceBase
+from services.price_service.database import PriceSchema
+from services.price_service.database import engine as price_engine
+from services.product_service.database import Base as ProductBase
+from services.product_service.database import ProductSchema
+from services.product_service.database import engine as product_engine
+from services.retail_file_service.database import Base as RetailFileBase
+from services.retail_file_service.database import RetailFileSchema
+from services.retail_file_service.database import engine as retail_file_engine
+from services.store_service.database import Base as StoreBase
+from services.store_service.database import StoreSchema
+from services.store_service.database import engine as store_engine
 
 # Load environment variables
 load_dotenv()

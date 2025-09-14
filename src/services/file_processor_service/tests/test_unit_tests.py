@@ -123,8 +123,8 @@ class TestFileProcessorUnitTests:
         assert item1.manufacturer_name == "Test Manufacturer"
         assert item1.chain_id == "7290027600007"
         assert item1.store_id == "1"
-        assert item1.is_weighted == False
-        assert item1.allow_discount == True
+        assert not item1.is_weighted
+        assert item1.allow_discount
 
         # Check second item
         item2 = items[1]
@@ -269,11 +269,11 @@ class TestFileProcessorUnitTests:
             "is_processed": False,
         }
 
-        # Step 2: Simulate Kafka message production
-        retail_file_message = {
-            "event_type": "retail_file_created",
-            "data": retail_file_data,
-        }
+        # Step 2: Simulate Kafka message production (for documentation)
+        # retail_file_message = {
+        #     "event_type": "retail_file_created",
+        #     "data": retail_file_data,
+        # }
 
         # Step 3: Simulate message consumption and processing
         mock_s3_client = MagicMock()
