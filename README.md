@@ -1,12 +1,15 @@
-# About
+## Products Watch - Retail Data Processing Microservices
+
 A comprehensive microservices architecture for processing retail product data, featuring automated file processing, price tracking, and store management. Built with FastAPI, PostgreSQL, Kafka, and Docker.
-Key Features:
-🏪 Store Management - Multi-chain store registration and management
-📦 Product Catalog - Product information and metadata management
-💰 Price Tracking - Real-time price monitoring and updates
-📄 File Processing - Automated XML/CSV retail file processing with S3 integration
-🔄 Event Streaming - Kafka-based asynchronous data processing
-🐳 Containerized - Full Docker Compose setup with PostgreSQL, Kafka, MinIO, and pgAdmin
+
+**Key Features:**
+- 🏪 **Store Management** - Multi-chain store registration and management
+- 📦 **Product Catalog** - Product information and metadata management  
+- 💰 **Price Tracking** - Real-time price monitoring and updates
+- 📄 **File Processing** - Automated XML/CSV retail file processing with S3 integration
+- 🔄 **Event Streaming** - Kafka-based asynchronous data processing
+- 🐳 **Containerized** - Full Docker Compose setup with PostgreSQL, Kafka, MinIO, and pgAdmin
+
 
 # Products Watch - Docker Setup
 
