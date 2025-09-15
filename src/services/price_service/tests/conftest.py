@@ -2,17 +2,24 @@
 Pytest configuration and fixtures for price service tests.
 """
 
+import os
+import sys
+
+# Set testing environment variable
+os.environ["TESTING"] = "true"
+
+# Add necessary paths for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", ".."))
 
 # Import the main app and database components
-
 import pytest
+from database import Base, get_db
 from fastapi.testclient import TestClient
+from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-from ..database import Base, get_db
-from ..main import app
 
 # Test database configuration
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

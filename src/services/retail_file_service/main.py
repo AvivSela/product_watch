@@ -8,33 +8,12 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 
-# Local application imports
-# Try relative imports first, fallback to absolute imports if needed
-try:
-    # Try relative imports first
-    from .database import RetailFileSchema, get_db
-    from .models import (
-        PaginatedResponse,
-        RetailFileCreate,
-        RetailFileMessage,
-        RetailFileUpdate,
-    )
-    from .models import RetailFile as RetailFileModel
-except ImportError:
-    # Fallback to absolute imports when running directly
-    import os
+# Local application imports with conditional import strategy
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    # Test environment - use absolute imports
     import sys
 
-    # Add the current directory to Python path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    if current_dir not in sys.path:
-        sys.path.insert(0, current_dir)
-
-    # Add the src directory to Python path for shared imports
-    src_dir = os.path.join(os.path.dirname(__file__), "..", "..")
-    if src_dir not in sys.path:
-        sys.path.insert(0, src_dir)
-
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
     from database import RetailFileSchema, get_db
     from models import (
         PaginatedResponse,
@@ -44,21 +23,18 @@ except ImportError:
     )
     from models import RetailFile as RetailFileModel
 
-# Import Kafka producer with fallback
-try:
+    from shared.utils.kafka_producer import KafkaProducer
+else:
+    # Production environment - use relative imports
     from ...shared.utils.kafka_producer import KafkaProducer
-except ImportError:
-    try:
-        from shared.utils.kafka_producer import KafkaProducer
-    except ImportError:
-        # Final fallback - add src to path and try again
-        import os
-        import sys
-
-        src_dir = os.path.join(os.path.dirname(__file__), "..", "..")
-        if src_dir not in sys.path:
-            sys.path.insert(0, src_dir)
-        from shared.utils.kafka_producer import KafkaProducer
+    from .database import RetailFileSchema, get_db
+    from .models import (
+        PaginatedResponse,
+        RetailFileCreate,
+        RetailFileMessage,
+        RetailFileUpdate,
+    )
+    from .models import RetailFile as RetailFileModel
 
 # Kafka configuration
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")

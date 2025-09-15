@@ -13,12 +13,11 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
+# Copy the entire src directory to maintain package structure
 COPY src/ ./src/
-COPY scripts/ ./scripts/
 
-# Set Python path
-ENV PYTHONPATH=/app
+# Set PYTHONPATH to include the src directory
+ENV PYTHONPATH=/app/src
 
 # Expose port
 EXPOSE 8004
@@ -27,5 +26,5 @@ EXPOSE 8004
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8004/health || exit 1
 
-# Default command
-CMD ["python", "-m", "uvicorn", "src.services.file_processor_service.main:app", "--host", "0.0.0.0", "--port", "8004"]
+# Run the FastAPI application as a module
+CMD ["python", "-m", "services.file_processor_service.main"]

@@ -3,16 +3,7 @@ Pytest configuration and fixtures for retail file service tests.
 """
 
 import os
-
-# Import the main app and database components
 import sys
-from unittest.mock import AsyncMock
-
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Set testing environment variable to enable fallback imports
 os.environ["TESTING"] = "true"
@@ -22,8 +13,16 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 # Add shared directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", ".."))
 
-from ..database import Base, get_db
-from ..main import app
+# Import the main app and database components
+from unittest.mock import AsyncMock
+
+import pytest
+from database import Base, get_db
+from fastapi.testclient import TestClient
+from main import app
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 # Test database configuration
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

@@ -1,4 +1,5 @@
 # Standard library imports
+import os
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
@@ -6,8 +7,16 @@ from uuid import UUID
 # Third-party imports
 from pydantic import BaseModel, ConfigDict, Field
 
-# Local application imports
-from .database import StoreSchema
+# Local application imports with conditional import strategy
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    # Test environment - use absolute imports
+    import sys
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+    from database import StoreSchema
+else:
+    # Production environment - use relative imports
+    from .database import StoreSchema
 
 
 # Pydantic models for request/response

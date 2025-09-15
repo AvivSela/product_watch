@@ -5,25 +5,16 @@ Tests real PostgreSQL database interactions.
 
 import os
 import subprocess
-
-# Import the main app and database components
 import sys
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-
-# Set testing environment variable to enable fallback imports
+# Set testing environment variable
 os.environ["TESTING"] = "true"
 
-# Add parent directory to path for imports
+# Add necessary paths for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-# Add shared directory to path
 sys.path.insert(
     0,
     os.path.join(
@@ -31,8 +22,13 @@ sys.path.insert(
     ),
 )
 
-from ...database import Base, get_db
-from ...main import app
+import pytest
+from database import Base, get_db
+from fastapi.testclient import TestClient
+from main import app
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 
 class PostgreSQLTestManager:

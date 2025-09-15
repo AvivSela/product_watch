@@ -1,4 +1,5 @@
 # Standard library imports
+import os
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -6,10 +7,20 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 
-# Local application imports
-from .database import PriceSchema, get_db
-from .models import PaginatedResponse, PriceCreate, PriceUpdate
-from .models import Price as PriceModel
+# Local application imports with conditional import strategy
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    # Test environment - use absolute imports
+    import sys
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+    from database import PriceSchema, get_db
+    from models import PaginatedResponse, PriceCreate, PriceUpdate
+    from models import Price as PriceModel
+else:
+    # Production environment - use relative imports
+    from .database import PriceSchema, get_db
+    from .models import PaginatedResponse, PriceCreate, PriceUpdate
+    from .models import Price as PriceModel
 
 # Initialize FastAPI app
 app = FastAPI(

@@ -4,25 +4,19 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-# Local application imports
-# Try relative imports first, fallback to absolute imports if needed
-try:
-    # Try relative imports first
-    from .database import RetailFileSchema
-except ImportError:
-    # Fallback to absolute imports when running directly
-    import os
-    import sys
-
-    # Add the current directory to Python path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    if current_dir not in sys.path:
-        sys.path.insert(0, current_dir)
-
-    from database import RetailFileSchema
-
 # Third-party imports
 from pydantic import BaseModel, ConfigDict, Field
+
+# Local application imports with conditional import strategy
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    # Test environment - use absolute imports
+    import sys
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+    from database import RetailFileSchema
+else:
+    # Production environment - use relative imports
+    from .database import RetailFileSchema
 
 
 # Pydantic models for request/response

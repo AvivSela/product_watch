@@ -21,5 +21,9 @@ ENV PYTHONPATH=/app/src
 # Expose port 8001
 EXPOSE 8001
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
 # Run the FastAPI application as a module
 CMD ["python", "-m", "services.product_service.main"]
