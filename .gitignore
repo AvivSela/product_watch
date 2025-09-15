@@ -207,3 +207,6 @@ desktop.ini
 
 # FastAPI specific
 .pytest_cache/
+
+# Configuration files with sensitive data
+config/pgadmin/servers.json
