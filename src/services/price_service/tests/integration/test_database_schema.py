@@ -105,7 +105,6 @@ class TestDatabaseSchemaIntegration:
         indexes = inspector.get_indexes("prices")
 
         # Check that id column has an index (primary key)
-        index_names = [idx["name"] for idx in indexes]
         assert any("id" in idx["column_names"] for idx in indexes), (
             "ID column should have an index"
         )

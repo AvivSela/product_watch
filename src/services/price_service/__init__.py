@@ -15,21 +15,31 @@ if service_dir not in sys.path:
 
 try:
     # Try relative imports first (production)
-    from .database import PriceSchema, get_db
-    from .models import PaginatedResponse, Price, PriceCreate, PriceUpdate
+    from .database import PriceSchema, get_db  # type: ignore
+    from .models import (  # type: ignore
+        PaginatedResponse,
+        Price,
+        PriceCreate,
+        PriceUpdate,
+    )
 except ImportError:
     # Fallback to absolute imports (testing)
     try:
-        from database import PriceSchema, get_db
-        from models import PaginatedResponse, Price, PriceCreate, PriceUpdate
+        from database import PriceSchema, get_db  # type: ignore
+        from models import (  # type: ignore
+            PaginatedResponse,
+            Price,
+            PriceCreate,
+            PriceUpdate,
+        )
     except ImportError:
         # Final fallback - set to None for optional imports
-        PriceSchema = None
-        get_db = None
-        PaginatedResponse = None
-        Price = None
-        PriceCreate = None
-        PriceUpdate = None
+        PriceSchema = None  # type: ignore
+        get_db = None  # type: ignore
+        PaginatedResponse = None  # type: ignore
+        Price = None  # type: ignore
+        PriceCreate = None  # type: ignore
+        PriceUpdate = None  # type: ignore
 
 __all__ = [
     "PriceSchema",

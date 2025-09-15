@@ -1,0 +1,136 @@
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "combined_htmlcov",
+    "products_watch.egg-info",
+    "src/products_watch.egg-info",
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.11+
+target-version = "py311"
+
+[tool.ruff.lint]
+# Start with only critical linting rules
+select = [
+    "E4",   # pycodestyle errors
+    "E7",   # pycodestyle errors
+    "E9",   # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "S",    # flake8-bandit (security) - only critical security issues
+]
+
+ignore = [
+    # Docstring rules - too strict for initial setup
+    "D",    # All pydocstyle rules
+
+    # Style rules - can be added later
+    "C4",   # flake8-comprehensions
+    "ARG",  # flake8-unused-arguments
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "Q",    # flake8-quotes
+    "I",    # isort
+    "N",    # pep8-naming
+    "T20",  # flake8-print
+    "PL",   # pylint
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "RUF",  # Ruff-specific rules
+
+    # Allow assertions and print statements in tests
+    "S101", # Use of assert detected
+    "T20",  # print statements
+
+    # Allow subprocess calls in tests (they're for Docker setup)
+    "S603", # subprocess call
+    "S607", # Starting a process with a partial executable path
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can use magic values, assertions, and print statements
+"tests/**/*.py" = ["PLR2004", "S101", "T20"]
+"**/test_*.py" = ["PLR2004", "S101", "T20"]
+"**/conftest.py" = ["PLR2004", "S101", "T20"]
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_configs = false
+warn_return_any = false
+warn_unused_ignores = false
+warn_no_return = false
+warn_redundant_casts = false
+warn_unreachable = false
+strict_equality = false
+no_implicit_optional = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
+disallow_untyped_calls = false
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = [
+    "aiokafka.*",
+    "minio.*",
+    "psycopg2.*",
+    "sqlalchemy.*",
+    "kafka.*",
+    "src.services.*.database",
+    "src.services.*.__init__",
+    "src.services.file_processor_service.s3_client",
+    "src.services.file_processor_service.file_processor",
+    "src.services.store_service.__init__",
+    "src.services.retail_file_service.__init__",
+    "src.services.product_service.__init__",
+    "src.services.price_service.__init__",
+]
+ignore_missing_imports = true
+ignore_errors = true

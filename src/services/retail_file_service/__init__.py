@@ -15,8 +15,8 @@ if service_dir not in sys.path:
 
 try:
     # Try relative imports first (production)
-    from .database import RetailFileSchema, get_db
-    from .models import (
+    from .database import RetailFileSchema, get_db  # type: ignore
+    from .models import (  # type: ignore
         PaginatedResponse,
         RetailFile,
         RetailFileCreate,
@@ -26,8 +26,8 @@ try:
 except ImportError:
     # Fallback to absolute imports (testing)
     try:
-        from database import RetailFileSchema, get_db
-        from models import (
+        from database import RetailFileSchema, get_db  # type: ignore
+        from models import (  # type: ignore
             PaginatedResponse,
             RetailFile,
             RetailFileCreate,
@@ -36,13 +36,13 @@ except ImportError:
         )
     except ImportError:
         # Final fallback - set to None for optional imports
-        RetailFileSchema = None
-        get_db = None
-        PaginatedResponse = None
-        RetailFile = None
-        RetailFileCreate = None
-        RetailFileMessage = None
-        RetailFileUpdate = None
+        RetailFileSchema = None  # type: ignore
+        get_db = None  # type: ignore
+        PaginatedResponse = None  # type: ignore
+        RetailFile = None  # type: ignore
+        RetailFileCreate = None  # type: ignore
+        RetailFileMessage = None  # type: ignore
+        RetailFileUpdate = None  # type: ignore
 
 __all__ = [
     "RetailFileSchema",

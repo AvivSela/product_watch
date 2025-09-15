@@ -189,10 +189,9 @@ class TestStoreCRUD:
     ):
         """Test that updating to create duplicate constraint fails."""
         # Create two stores
-        response1 = client.post("/stores", json=sample_store_data)
+        client.post("/stores", json=sample_store_data)
         response2 = client.post("/stores", json=sample_store_data_2)
 
-        store1_id = response1.json()["id"]
         store2_id = response2.json()["id"]
 
         # Try to update store2 to have same store_code and chain_id as store1
