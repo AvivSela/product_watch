@@ -55,3 +55,6 @@ jobs:
         else
           echo "✅ No TODO/FIXME comments found."
         fi
+    - name: Run Unit Tests
+      run: |
+        python run_all_tests.py
