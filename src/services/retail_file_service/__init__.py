@@ -6,7 +6,6 @@ for retail files in the Products Watch System.
 """
 
 from .database import RetailFileSchema, get_db
-from .main import app
 from .models import (
     PaginatedResponse,
     RetailFile,
@@ -16,7 +15,6 @@ from .models import (
 )
 
 __all__ = [
-    "app",
     "RetailFileSchema",
     "get_db",
     "RetailFile",

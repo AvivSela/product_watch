@@ -15,16 +15,13 @@ if service_dir not in sys.path:
 
 try:
     from file_processor import ExtractedPriceProductItem, process_xml_file
-    from main import app
 except ImportError:
     # If running from project root, try relative imports
     try:
         from .file_processor import ExtractedPriceProductItem, process_xml_file
-        from .main import app
     except ImportError:
         # If that fails too, we're in a different context
         ExtractedPriceProductItem = None
         process_xml_file = None
-        app = None
 
-__all__ = ["app", "process_xml_file", "ExtractedPriceProductItem"]
+__all__ = ["process_xml_file", "ExtractedPriceProductItem"]

@@ -6,11 +6,9 @@ for stores in the Products Watch System.
 """
 
 from .database import StoreSchema, get_db
-from .main import app
 from .models import PaginatedResponse, Store, StoreCreate, StoreUpdate
 
 __all__ = [
-    "app",
     "StoreSchema",
     "get_db",
     "Store",
