@@ -9,6 +9,9 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
 
     steps:
     - name: Checkout code
@@ -34,11 +37,11 @@ jobs:
 
     - name: Run Ruff linter
       run: |
-        ruff check src/ --output-format=github
+        ruff check src/ --output-format=github --diff
 
     - name: Run Ruff formatter check
       run: |
-        ruff format --check src/
+        ruff format --check src/ --diff
 
     - name: Run MyPy type checker
       run: |
