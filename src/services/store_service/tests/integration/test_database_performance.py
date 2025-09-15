@@ -6,7 +6,8 @@ Tests critical PostgreSQL database performance characteristics.
 import time
 
 import pytest
-from database import StoreSchema
+
+from ...database import StoreSchema
 
 
 @pytest.mark.integration

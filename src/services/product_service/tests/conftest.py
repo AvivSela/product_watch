@@ -6,12 +6,13 @@ Pytest configuration and fixtures for product service tests.
 # Import the main app and database components
 
 import pytest
-from database import Base, get_db
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+from ..database import Base, get_db
+from ..main import app
 
 # Test database configuration
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

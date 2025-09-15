@@ -11,12 +11,13 @@ import time
 from contextlib import contextmanager
 
 import pytest
-from database import Base, get_db
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+from ...database import Base, get_db
+from ...main import app
 
 
 class PostgreSQLTestManager:

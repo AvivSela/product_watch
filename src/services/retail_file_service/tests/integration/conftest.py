@@ -31,8 +31,8 @@ sys.path.insert(
     ),
 )
 
-from database import Base, get_db
-from main import app
+from ...database import Base, get_db
+from ...main import app
 
 
 class PostgreSQLTestManager:

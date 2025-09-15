@@ -13,7 +13,7 @@ from fastapi import status
 from sqlalchemy import text
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from database import RetailFileSchema
+from ...database import RetailFileSchema
 
 
 @pytest.mark.integration

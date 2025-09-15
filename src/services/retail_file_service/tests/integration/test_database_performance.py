@@ -7,7 +7,8 @@ import time
 from datetime import datetime, timezone
 
 import pytest
-from database import RetailFileSchema
+
+from ...database import RetailFileSchema
 
 
 @pytest.mark.integration

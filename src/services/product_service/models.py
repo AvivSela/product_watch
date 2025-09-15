@@ -4,11 +4,11 @@ from decimal import Decimal
 from typing import List, Optional
 from uuid import UUID
 
-# Local application imports
-from database import ProductSchema
-
 # Third-party imports
 from pydantic import BaseModel, ConfigDict, Field
+
+# Local application imports
+from .database import ProductSchema
 
 
 # Pydantic models for request/response

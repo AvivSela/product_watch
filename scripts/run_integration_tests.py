@@ -50,7 +50,7 @@ def cleanup_containers():
     try:
         # Stop and remove test containers
         run_command(
-            ["docker-compose", "-f", "docker-compose.test.yml", "down", "-v"],
+            ["docker-compose", "-f", "docker-compose.testing.yml", "down", "-v"],
             check=False,
         )
 
@@ -165,7 +165,7 @@ def run_integration_tests(service=None):
             [
                 "docker-compose",
                 "-f",
-                "docker-compose.test.yml",
+                "docker-compose.testing.yml",
                 "up",
                 "-d",
                 "postgres-test",

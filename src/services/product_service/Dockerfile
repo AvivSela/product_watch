@@ -12,11 +12,14 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the product service source code
-COPY src/services/product_service/ .
+# Copy the entire src directory to maintain package structure
+COPY src/ ./src/
+
+# Set PYTHONPATH to include the src directory
+ENV PYTHONPATH=/app/src
 
 # Expose port 8001
 EXPOSE 8001
 
-# Run the FastAPI application
-CMD ["python", "main.py"]
+# Run the FastAPI application as a module
+CMD ["python", "-m", "services.product_service.main"]

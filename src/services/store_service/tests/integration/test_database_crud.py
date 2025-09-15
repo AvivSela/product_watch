@@ -4,9 +4,10 @@ Tests real PostgreSQL database interactions.
 """
 
 import pytest
-from database import StoreSchema
 from fastapi import status
 from sqlalchemy import text
+
+from ...database import StoreSchema
 
 
 @pytest.mark.integration

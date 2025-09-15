@@ -6,7 +6,8 @@ Tests real Kafka message production when creating retail files.
 import json
 
 import pytest
-from database import RetailFileSchema
+
+from ...database import RetailFileSchema
 
 
 @pytest.mark.integration

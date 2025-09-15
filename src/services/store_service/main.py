@@ -2,14 +2,14 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-# Local application imports
-from database import StoreSchema, get_db
-
 # Third-party imports
 from fastapi import Depends, FastAPI, HTTPException, Query
-from models import PaginatedResponse, StoreCreate, StoreUpdate
-from models import Store as StoreModel
 from sqlalchemy.orm import Session
+
+# Local application imports
+from .database import StoreSchema, get_db
+from .models import PaginatedResponse, StoreCreate, StoreUpdate
+from .models import Store as StoreModel
 
 # Initialize FastAPI app
 app = FastAPI(
