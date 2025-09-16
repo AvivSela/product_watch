@@ -3,6 +3,6 @@
 
 # Development and linting tools
 ruff==0.13.0
-mypy==1.7.1
+mypy==1.18.1
 types-requests==2.31.0.10
 types-PyYAML==6.0.12.12
