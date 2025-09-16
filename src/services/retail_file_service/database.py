@@ -5,7 +5,7 @@ from os import getenv
 # Third-party imports
 from dotenv import load_dotenv
 from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, create_engine, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
@@ -23,11 +23,21 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# Database-agnostic UUID column type
+def UUIDColumn(*args, **kwargs):
+    """Create a UUID column that works with both PostgreSQL and SQLite."""
+    if engine.dialect.name == "postgresql":
+        return Column(PostgresUUID(as_uuid=True), *args, **kwargs)
+    else:
+        # For SQLite and other databases, use String(36) to store UUID as string
+        return Column(String(36), *args, **kwargs)
+
+
 # Database model
 class RetailFileSchema(Base):
     __tablename__ = "retail_files"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = UUIDColumn(primary_key=True, default=uuid.uuid4, index=True)
     chain_id = Column(String(100), nullable=False)
     store_id = Column(Integer, nullable=True)
     file_name = Column(String(255), nullable=False)

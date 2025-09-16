@@ -1,0 +1,60 @@
+name: Lint and Type Check
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+  push:
+    branches: [ main, master, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}-v2
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Run Ruff linter
+      run: |
+        ruff check src/ --output-format=github --diff
+
+    - name: Run Ruff formatter check
+      run: |
+        ruff format --check src/ --diff
+
+    - name: Run MyPy type checker
+      run: |
+        mypy src/ --ignore-missing-imports --show-error-codes --no-strict-optional
+
+    - name: Check for TODO/FIXME comments
+      run: |
+        if grep -r "TODO\|FIXME" src/ --include="*.py"; then
+          echo "❌ Found TODO/FIXME comments in code. Please address them before merging."
+          exit 1
+        else
+          echo "✅ No TODO/FIXME comments found."
+        fi
+    - name: Run Unit Tests
+      run: |
+        python run_all_tests.py

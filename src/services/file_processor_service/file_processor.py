@@ -6,10 +6,11 @@ File processing logic for retail-file-processor.
 import gzip
 import io
 import logging
-import xml.etree.ElementTree as etree
 import zipfile
 from datetime import datetime, timedelta
 from typing import Callable, List
+
+from defusedxml import ElementTree as etree
 
 # Third-party imports
 from pydantic import BaseModel, Field

@@ -350,7 +350,7 @@ class TestDatabaseSchemaIntegration:
         assert db_retail_file.file_name == "schema_test_file.csv"
         assert db_retail_file.file_path == "/data/schema/schema_test_file.csv"
         assert db_retail_file.file_size == 1024
-        assert db_retail_file.is_processed == False
+        assert not db_retail_file.is_processed
 
         # Test that we can add to session (schema compatibility)
         integration_db_session.add(db_retail_file)

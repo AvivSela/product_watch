@@ -151,7 +151,7 @@ class TestDatabaseCRUDIntegration:
         assert db_retail_file.file_name == "updated_integration_file.csv"
         assert db_retail_file.file_path == "/data/updated/updated_integration_file.csv"
         assert db_retail_file.file_size == 2048
-        assert db_retail_file.is_processed == True
+        assert db_retail_file.is_processed
 
         # Verify other fields unchanged
         assert db_retail_file.chain_id == sample_retail_file_data["chain_id"]
@@ -218,7 +218,7 @@ class TestDatabaseCRUDIntegration:
         # Query by is_processed
         processed_retail_files = (
             integration_db_session.query(RetailFileSchema)
-            .filter(RetailFileSchema.is_processed == True)
+            .filter(RetailFileSchema.is_processed)
             .all()
         )
         assert len(processed_retail_files) == 1  # Only second retail file

@@ -105,7 +105,6 @@ class TestDatabaseSchemaIntegration:
         indexes = inspector.get_indexes("prices")
 
         # Check that id column has an index (primary key)
-        index_names = [idx["name"] for idx in indexes]
         assert any("id" in idx["column_names"] for idx in indexes), (
             "ID column should have an index"
         )
@@ -114,12 +113,14 @@ class TestDatabaseSchemaIntegration:
         """Test that table creation SQL is correct."""
         # This test verifies the table structure by checking the actual SQL
         result = integration_db_session.execute(
-            text("""
+            text(
+                """
                 SELECT column_name, data_type, is_nullable, column_default
                 FROM information_schema.columns
                 WHERE table_name = 'prices'
                 ORDER BY ordinal_position
-            """)
+            """
+            )
         )
 
         columns = result.fetchall()
@@ -145,21 +146,25 @@ class TestDatabaseSchemaIntegration:
         """Test that database constraints work as expected."""
         # Test that we can insert a record with all fields
         result = integration_db_session.execute(
-            text("""
+            text(
+                """
                 INSERT INTO prices (id, chain_id, store_id, item_code, price_amount, currency_code, price_update_date, created_at, updated_at)
                 VALUES (gen_random_uuid(), 'test_chain', 1, 'test_item', 10.50, 'USD', '2024-01-15 10:30:00', NOW(), NOW())
                 RETURNING id
-            """)
+            """
+            )
         )
         price_id = result.fetchone()[0]
 
         # Test that we can insert a record with minimal fields (including required timestamps)
         result = integration_db_session.execute(
-            text("""
+            text(
+                """
                 INSERT INTO prices (id, created_at, updated_at)
                 VALUES (gen_random_uuid(), NOW(), NOW())
                 RETURNING id
-            """)
+            """
+            )
         )
         price_id_2 = result.fetchone()[0]
 
@@ -180,11 +185,13 @@ class TestDatabaseSchemaIntegration:
 
         # Insert a record with explicit timestamps
         result = integration_db_session.execute(
-            text("""
+            text(
+                """
                 INSERT INTO prices (id, chain_id, store_id, item_code, price_amount, currency_code, created_at, updated_at)
                 VALUES (gen_random_uuid(), 'timestamp_test', 1, 'timestamp_item', 5.99, 'USD', :created_at, :updated_at)
                 RETURNING id, created_at, updated_at
-            """),
+            """
+            ),
             {"created_at": initial_time, "updated_at": initial_time},
         )
         price_id, created_at, updated_at = result.fetchone()
@@ -199,11 +206,13 @@ class TestDatabaseSchemaIntegration:
 
         # Update the record
         integration_db_session.execute(
-            text("""
+            text(
+                """
                 UPDATE prices
                 SET price_amount = 6.99, updated_at = :updated_at
                 WHERE id = :price_id
-            """),
+            """
+            ),
             {"price_id": price_id, "updated_at": update_time},
         )
 

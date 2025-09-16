@@ -258,7 +258,8 @@ class TestDatabaseSchemaIntegration:
         """Test database table size and storage characteristics."""
         # Get table size information
         result = integration_db_session.execute(
-            text("""
+            text(
+                """
             SELECT
                 schemaname,
                 tablename,
@@ -267,7 +268,8 @@ class TestDatabaseSchemaIntegration:
                 correlation
             FROM pg_stats
             WHERE tablename = 'products'
-        """)
+        """
+            )
         ).fetchall()
 
         # Statistics might not be available immediately after table creation
@@ -281,7 +283,8 @@ class TestDatabaseSchemaIntegration:
 
             # Try again
             result = integration_db_session.execute(
-                text("""
+                text(
+                    """
                 SELECT
                     schemaname,
                     tablename,
@@ -290,7 +293,8 @@ class TestDatabaseSchemaIntegration:
                     correlation
                 FROM pg_stats
                 WHERE tablename = 'products'
-            """)
+            """
+                )
             ).fetchall()
 
         # If still no statistics, that's okay for a test table

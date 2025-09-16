@@ -13,7 +13,7 @@ from sqlalchemy import (
     create_engine,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
@@ -31,6 +31,16 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# Database-agnostic UUID column type
+def UUIDColumn(*args, **kwargs):
+    """Create a UUID column that works with both PostgreSQL and SQLite."""
+    if engine.dialect.name == "postgresql":
+        return Column(PostgresUUID(as_uuid=True), *args, **kwargs)
+    else:
+        # For SQLite and other databases, use String(36) to store UUID as string
+        return Column(String(36), *args, **kwargs)
+
+
 # Database model
 class StoreSchema(Base):
     __tablename__ = "stores"
@@ -38,7 +48,7 @@ class StoreSchema(Base):
         UniqueConstraint("store_code", "chain_id", name="uix_store_code_chain_id"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = UUIDColumn(primary_key=True, default=uuid.uuid4, index=True)
     store_code = Column(Integer, nullable=False)
     store_name = Column(String(255), nullable=False)
     address = Column(String(500), nullable=False)

@@ -103,3 +103,72 @@ python scripts/init_database.py
 Database data is persisted in Docker volumes:
 - `postgres_data`: PostgreSQL data files
 - `pgadmin_data`: pgAdmin configuration and settings
+
+## Code Quality and Linting
+
+This project uses automated linting and type checking to maintain code quality.
+
+### Tools Used
+
+- **Ruff**: Fast Python linter and formatter
+- **MyPy**: Static type checker
+- **GitHub Actions**: Automated CI/CD pipeline
+
+### Running Linting Locally
+
+1. **Install development dependencies:**
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. **Run all linting checks:**
+   ```bash
+   python scripts/lint.py
+   ```
+
+3. **Run individual tools:**
+   ```bash
+   # Linting
+   ruff check src/
+
+   # Formatting check
+   ruff format --check src/
+
+   # Type checking
+   mypy src/ --ignore-missing-imports
+   ```
+
+4. **Auto-fix issues:**
+   ```bash
+   # Fix linting issues
+   ruff check src/ --fix
+
+   # Format code
+   ruff format src/
+   ```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks to run linting before each commit:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### GitHub Actions
+
+The project includes a GitHub Actions workflow (`.github/workflows/lint.yml`) that:
+
+- ✅ Runs on every pull request and push to main branches
+- ✅ Checks code with Ruff linter
+- ✅ Verifies code formatting
+- ✅ Performs type checking with MyPy
+- ✅ Blocks merges if any checks fail
+- ✅ Prevents TODO/FIXME comments in production code
+
+### Configuration
+
+- **Ruff configuration**: `pyproject.toml` (under `[tool.ruff]`)
+- **MyPy configuration**: `pyproject.toml` (under `[tool.mypy]`)
+- **Pre-commit hooks**: `.pre-commit-config.yaml`
